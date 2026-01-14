@@ -1,0 +1,12 @@
+#LATTICE DATA
+#Nx,Ny,Nz= 128 128 512
+#ax,ay,az= 1 1 0.25
+#dT= 0.008
+    
+QsR= 0.5
+QsAperp= 0.125
+MEff aka Infrared Cutoff= 1 (times QsAperp)
+Lambda aka UV Cutoff= 5 (times QsAperp)
+SigmaLOverAz L= 16
+SigmaLOverAz R= 16
+

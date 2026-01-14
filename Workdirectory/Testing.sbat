@@ -1,0 +1,16 @@
+#!/bin/bash -l
+
+#SBATCH --job-name=Collide3
+#SBATCH --account=lappi
+#SBATCH --partition=small
+
+#SBATCH --time=02:00:00
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=40
+
+#SBATCH --mail-user=yannickdunlop@protonmail.com
+#SBATCH --mail-type=BEGIN,END,FAIL
+
+module add fftw/3.3.10-mpi-omp gsl
+
+./SUNcSolver.exe -Nx 128 -Ny 128 -Nz 1024 -ax 1.0 -ay 1.0 -az 0.25 -o timetest20h008
