@@ -390,7 +390,8 @@ namespace Simulation {
 	   // EVOLVE	     //
 	   //////////////////
 	   
-	   Evolve(1100.0);
+	   //Evolve(1100.0);
+	   Evolve(Parameters::EndSimulationT);
     }
 
 	void Run(std::string f1name,std::string f2name,std::string f3name, DOUBLE t){

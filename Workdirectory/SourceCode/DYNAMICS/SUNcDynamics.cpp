@@ -27,7 +27,9 @@ namespace Dynamics{
     INT tSteps=0;
     
     //TIME INCREMENT
-	DOUBLE dTStep=0.008; //0.08
+	DOUBLE dTStep=0.008;
+	//0.00044 was what was written originally in the code and I used 00.8, but i could not get interpolation to work.
+	// 88/0.00044 = 200k, 88/0.00088 = 100k
     
     //GET EVOLUTION TIME
 	//	if(t=0.0){exit(1);} DOES NOT WORK FOR QUITTING

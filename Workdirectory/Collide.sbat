@@ -1,13 +1,13 @@
 #!/bin/bash -l
 
-#SBATCH --job-name=Collide
+#SBATCH --job-name=CollideRight
 #SBATCH --account=lappi
 #SBATCH --partition=small
 
-#SBATCH --time=04:00:00
+#SBATCH --time=02:00:00
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=40
 
 module add fftw/3.3.10-mpi-omp gsl
 
-OMP_NUM_THREADS=40 ./SUNcSolver.exe -Nx 128 -Ny 128 -Nz 1024 -ax 1.0 -ay 1.0 -az 1.0 -SEED 1 -o Testaz10N128
+OMP_NUM_THREADS=40 ./RightSUNcSolver.exe -Nx 128 -Ny 128 -Nz 1024 -ax 1.0 -ay 1.0 -az 0.25 -SEED 1 -o RightTest

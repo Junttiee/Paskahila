@@ -46,8 +46,8 @@ namespace Parameters{
 	DOUBLE aCubeInFm=aXInFm*aYInFm*aZInFm;
 
 	INT Load=0;
-
-	DOUBLE EndSimulationT=0.8;
+	//Will kill simulation at EMTDynT=EndSimulationT
+	DOUBLE EndSimulationT=88; // this is estimated from previous runs to be sufficent amount of data
 	
 }
 
