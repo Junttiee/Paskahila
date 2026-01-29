@@ -8,7 +8,7 @@ do
     echo "#SBATCH --job-name=Sym${i}" >>Coll${i}.sbat
     echo "#SBATCH --account=lappi" >>Coll${i}.sbat
     echo "#SBATCH --partition=small" >>Coll${i}.sbat 
-    echo "#SBATCH --time=26:00:00" >>Coll${i}.sbat
+    echo "#SBATCH --time=3-00:00:00" >>Coll${i}.sbat
     echo "#SBATCH --nodes=1" >>Coll${i}.sbat
     echo "#SBATCH --cpus-per-task=40" >>Coll${i}.sbat
     echo "#SBATCH --mail-user=yannickdunlop@protonmail.com" >>Coll${i}.sbat
@@ -40,7 +40,7 @@ do
     echo "#SBATCH --job-name=Left${i}" >>Left${i}.sbat
     echo "#SBATCH --account=lappi" >>Left${i}.sbat
     echo "#SBATCH --partition=small" >>Left${i}.sbat 
-    echo "#SBATCH --time=26:00:00" >>Left${i}.sbat
+    echo "#SBATCH --time=3-00:00:00" >>Left${i}.sbat
     echo "#SBATCH --nodes=1" >>Left${i}.sbat
     echo "#SBATCH --cpus-per-task=40" >>Left${i}.sbat
     echo "#SBATCH --mail-user=yannickdunlop@protonmail.com" >>Left${i}.sbat
@@ -72,7 +72,7 @@ do
     echo "#SBATCH --job-name=Right${i}" >>Right${i}.sbat
     echo "#SBATCH --account=lappi" >>Right${i}.sbat
     echo "#SBATCH --partition=small" >>Right${i}.sbat 
-    echo "#SBATCH --time=26:00:00" >>Right${i}.sbat
+    echo "#SBATCH --time=3-00:00:00" >>Right${i}.sbat
     echo "#SBATCH --nodes=1" >>Right${i}.sbat
     echo "#SBATCH --cpus-per-task=40" >>Right${i}.sbat
     echo "#SBATCH --mail-user=yannickdunlop@protonmail.com" >>Right${i}.sbat

@@ -115,7 +115,7 @@ namespace Observables {
 			for(INT z=zLow;z<=zHigh;z++){
 				//DIAGONAL COMPONENTS OF THE ENERGY MOMENTUM TENSOR
 				DOUBLE T00=0.0,TXX=0.0,TYY=0.0,TZZ=0.0;
-				DOUBLE T0X=0.0,T0Y=0.0,T0Z=0.0,TXY=0.0,TYZ=0.0,TZX=0.0;
+				DOUBLE T0X=0.0,T0Y=0.0,T0Z=0.0;//,TXY=0.0,TYZ=0.0,TZX=0.0;
 				DOUBLE T0Xmod=0.0,T0Ymod=0.0,T0Zmod=0.0;
 				DOUBLE TXXmod=0.0, TYYmod=0.0, TZZmod=0.0; 
 				 
@@ -127,7 +127,7 @@ namespace Observables {
 				//BUFFERS FOR AVERAGE FIELD STRENGTH
 				SET_AVG_FIELD_STRENGTH_BUFFERS(); 
 					
-			#pragma omp for reduction( + : T00,TXX,TYY,TZZ,T0X,T0Y,T0Z,TXY,TYZ,TZX,T0Xmod,T0Ymod,T0Zmod,TXXmod,TYYmod,TZZmod)
+			#pragma omp for reduction( + : T00,TXX,TYY,TZZ,T0X,T0Y,T0Z,T0Xmod,T0Ymod,T0Zmod,TXXmod,TYYmod,TZZmod) //TXY,TYZ, TZX removed
 
 				for(INT y=yLow;y<=yHigh;y++){
 					for(INT x=xLow;x<=xHigh;x++){
