@@ -11,4 +11,4 @@
 
 module add fftw/3.3.10-mpi-omp gsl
 
-./SUNcSolver.exe -Nx 128 -Ny 128 -Nz 512 -ax 1.0 -ay 1.0 -az 0.25 -o timetest008Coll
+./SUNcSolver.exe -Nx 128 -Ny 128 -Nz 512 -ax 1.0 -ay 1.0 -az 0.25 -o NewTest1

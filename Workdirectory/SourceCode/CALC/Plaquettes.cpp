@@ -105,38 +105,32 @@ SU_Nc_FUNDAMENTAL_FORMAT UMyMzmpy[SUNcGroup::MatrixSize]; \
 SU_Nc_FUNDAMENTAL_FORMAT UMyMzmpz[SUNcGroup::MatrixSize]; 
 
 // // added by Yannick 
-/*Below we use the existing elementary plaquettes, even if the naming is confusing.
-So essentially if we need Uyx we mark it as Uxy as that one exists and can be used in computations.
-Moreover because (DxUyxUx)^}^\dag = Dx_Uxy_Ux we can and must use Uyx and then *(-1) ReTr expression will give us the correct ReTr of Dx_Uxy_Ux :) */
+/*Below we use the existing operations and plaquettes to create necessary moved parallel transported plaquettes for T_0k and the ReTr[it^aU] and calculate them.
+Also for T_kk terms the necessary plaquttes are created and we calculate the needed ReTr[IDMinusU]. The segmentation faults are dealt with in T_kk with the brilliant method of just not going over the lattice. 
+The same could have been used already for T_0k me thinks, but I guess as a testament to my indomitable spirit I kept the way I did it, I guess it shows my understanding of the lattice machinery.  */
 
-/* There could be a way to have some loops that go through j XOR k to implement all the terms that differ by just link ect, not sure if possible of worth it. */
-
-
+// Here for T_0k
 #define SET_MOVED_PLAQUETTE_BUFFERS() \
-\
-SU_Nc_FUNDAMENTAL_FORMAT Ux_Uxy_Dx[SUNcGroup::MatrixSize]; \
-SU_Nc_FUNDAMENTAL_FORMAT Dy_UxMy_Uy[SUNcGroup::MatrixSize]; \
-SU_Nc_FUNDAMENTAL_FORMAT UxDy_UxMy_UyDx[SUNcGroup::MatrixSize]; \
-\
+SU_Nc_FUNDAMENTAL_FORMAT Dx_Uxy_Ux[SUNcGroup::MatrixSize]; \
+SU_Nc_FUNDAMENTAL_FORMAT Uymy_UxMy_Dymy[SUNcGroup::MatrixSize]; \
+SU_Nc_FUNDAMENTAL_FORMAT DxmyUymy_UxMy_DymyUxmy[SUNcGroup::MatrixSize]; \
 SU_Nc_FUNDAMENTAL_FORMAT Dx_Uzx_Ux[SUNcGroup::MatrixSize]; \
-SU_Nc_FUNDAMENTAL_FORMAT Uz_UMzx_Dz[SUNcGroup::MatrixSize]; \
-SU_Nc_FUNDAMENTAL_FORMAT DxUz_UMzx_DzUx[SUNcGroup::MatrixSize]; \
+SU_Nc_FUNDAMENTAL_FORMAT Uzmz_UMzx_Dzmz[SUNcGroup::MatrixSize]; \
+SU_Nc_FUNDAMENTAL_FORMAT DxmzUzmz_UMzx_DzmzUxmz[SUNcGroup::MatrixSize]; \
 \
 SU_Nc_FUNDAMENTAL_FORMAT Dy_Uxy_Uy[SUNcGroup::MatrixSize]; \
-SU_Nc_FUNDAMENTAL_FORMAT Ux_UMxy_Dx[SUNcGroup::MatrixSize]; \
-SU_Nc_FUNDAMENTAL_FORMAT DyUx_UMxy_DxUy[SUNcGroup::MatrixSize]; \
+SU_Nc_FUNDAMENTAL_FORMAT Uxmx_UMxy_Dxmx[SUNcGroup::MatrixSize]; \
+SU_Nc_FUNDAMENTAL_FORMAT DymxUxmx_UMxy_DxmxUymx[SUNcGroup::MatrixSize]; \
+SU_Nc_FUNDAMENTAL_FORMAT Dy_Uyz_Uy[SUNcGroup::MatrixSize]; \
+SU_Nc_FUNDAMENTAL_FORMAT Uzmz_UyMz_Dzmz[SUNcGroup::MatrixSize]; \
+SU_Nc_FUNDAMENTAL_FORMAT DymzUzmz_UyMz_DzmzUymz[SUNcGroup::MatrixSize]; \
 \
-SU_Nc_FUNDAMENTAL_FORMAT Uy_Uyz_Dy[SUNcGroup::MatrixSize]; \
-SU_Nc_FUNDAMENTAL_FORMAT Dz_UyMz_Uz[SUNcGroup::MatrixSize]; \
-SU_Nc_FUNDAMENTAL_FORMAT UyDz_UyMz_UzDy[SUNcGroup::MatrixSize]; \
-\
-SU_Nc_FUNDAMENTAL_FORMAT Uz_Uzx_Dz[SUNcGroup::MatrixSize]; \
-SU_Nc_FUNDAMENTAL_FORMAT Dx_UzMx_Ux[SUNcGroup::MatrixSize]; \
-SU_Nc_FUNDAMENTAL_FORMAT UzDx_UzMx_UxDz[SUNcGroup::MatrixSize]; \
-\
+SU_Nc_FUNDAMENTAL_FORMAT Dz_Uzx_Uz[SUNcGroup::MatrixSize]; \
+SU_Nc_FUNDAMENTAL_FORMAT Uxmx_UzMx_Dxmx[SUNcGroup::MatrixSize]; \
+SU_Nc_FUNDAMENTAL_FORMAT DzmxUxmx_UzMx_DxmxUzmx[SUNcGroup::MatrixSize]; \
 SU_Nc_FUNDAMENTAL_FORMAT Dz_Uyz_Uz[SUNcGroup::MatrixSize]; \
-SU_Nc_FUNDAMENTAL_FORMAT Uy_UMyz_Dy[SUNcGroup::MatrixSize]; \
-SU_Nc_FUNDAMENTAL_FORMAT DzUy_UMyz_DyUz[SUNcGroup::MatrixSize]; 
+SU_Nc_FUNDAMENTAL_FORMAT Uymy_UMyz_Dymy[SUNcGroup::MatrixSize]; \
+SU_Nc_FUNDAMENTAL_FORMAT DzmyUymy_UMyz_DymyUzmy[SUNcGroup::MatrixSize]; 
 
 //BUFFERS FOR THE COMPUTATION OF THE REAL PART OF THE TRACE iT^{a} TIMES THE ELEMENTARY PLAQUETTES
 #define SET_ELEMENTARY_COLOR_TRACE_BUFFERS() \
@@ -166,29 +160,26 @@ DOUBLE ReTrITaUMzMx[SUNcAlgebra::NumberOfGenerators];
 
 #define SET_MOVED_COLOR_TRACES_BUFFERS()\
 \
-DOUBLE ReTrITaUx_Uxy_Dx[SUNcAlgebra::NumberOfGenerators]; \
-DOUBLE ReTrITaDy_UxMy_Uy[SUNcAlgebra::NumberOfGenerators]; \
-DOUBLE ReTrITaUxDy_UxMy_UyDx[SUNcAlgebra::NumberOfGenerators]; \
-\
+DOUBLE ReTrITaDx_Uxy_Ux[SUNcAlgebra::NumberOfGenerators]; \
+DOUBLE ReTrITaUymy_UxMy_Dymy[SUNcAlgebra::NumberOfGenerators]; \
+DOUBLE ReTrITaDxmyUymy_UxMy_DymyUxmy[SUNcAlgebra::NumberOfGenerators]; \
 DOUBLE ReTrITaDx_Uzx_Ux[SUNcAlgebra::NumberOfGenerators]; \
-DOUBLE ReTrITaUz_UMzx_Dz[SUNcAlgebra::NumberOfGenerators]; \
-DOUBLE ReTrITaDxUz_UMzx_DzUx[SUNcAlgebra::NumberOfGenerators]; \
+DOUBLE ReTrITaUzmz_UMzx_Dzmz[SUNcAlgebra::NumberOfGenerators]; \
+DOUBLE ReTrITaDxmzUzmz_UMzx_DzmzUxmz[SUNcAlgebra::NumberOfGenerators]; \
 \
 DOUBLE ReTrITaDy_Uxy_Uy[SUNcAlgebra::NumberOfGenerators]; \
-DOUBLE ReTrITaUx_UMxy_Dx[SUNcAlgebra::NumberOfGenerators]; \
-DOUBLE ReTrITaDyUx_UMxy_DxUy[SUNcAlgebra::NumberOfGenerators]; \
+DOUBLE ReTrITaUxmx_UMxy_Dxmx[SUNcAlgebra::NumberOfGenerators]; \
+DOUBLE ReTrITaDymxUxmx_UMxy_DxmxUymx[SUNcAlgebra::NumberOfGenerators]; \
+DOUBLE ReTrITaDy_Uyz_Uy[SUNcAlgebra::NumberOfGenerators]; \
+DOUBLE ReTrITaUzmz_UyMz_Dzmz[SUNcAlgebra::NumberOfGenerators]; \
+DOUBLE ReTrITaDymzUzmz_UyMz_DzmzUymz[SUNcAlgebra::NumberOfGenerators]; \
 \
-DOUBLE ReTrITaUy_Uyz_Dy[SUNcAlgebra::NumberOfGenerators]; \
-DOUBLE ReTrITaDz_UyMz_Uz[SUNcAlgebra::NumberOfGenerators]; \
-DOUBLE ReTrITaUyDz_UyMz_UzDy[SUNcAlgebra::NumberOfGenerators]; \
-\
-DOUBLE ReTrITaUz_Uzx_Dz[SUNcAlgebra::NumberOfGenerators]; \
-DOUBLE ReTrITaDx_UzMx_Ux[SUNcAlgebra::NumberOfGenerators]; \
-DOUBLE ReTrITaUzDx_UzMx_UxDz[SUNcAlgebra::NumberOfGenerators]; \
-\
+DOUBLE ReTrITaDz_Uzx_Uz[SUNcAlgebra::NumberOfGenerators]; \
+DOUBLE ReTrITaUxmx_UzMx_Dxmx[SUNcAlgebra::NumberOfGenerators]; \
+DOUBLE ReTrITaDzmxUxmx_UzMx_DxmxUzmx[SUNcAlgebra::NumberOfGenerators]; \
 DOUBLE ReTrITaDz_Uyz_Uz[SUNcAlgebra::NumberOfGenerators]; \
-DOUBLE ReTrITaUy_UMyz_Dy[SUNcAlgebra::NumberOfGenerators]; \
-DOUBLE ReTrITaDzUy_UMyz_DyUz[SUNcAlgebra::NumberOfGenerators]; 
+DOUBLE ReTrITaUymy_UMyz_Dymy[SUNcAlgebra::NumberOfGenerators]; \
+DOUBLE ReTrITaDzmyUymy_UMyz_DymyUzmy[SUNcAlgebra::NumberOfGenerators]; 
 
 //COMPUTATION OF ELEMENTARY PLAQUETTES
 #define COMPUTE_ELEMENTARY_PLAQUETTES(x,y,z,U) \
@@ -282,29 +273,26 @@ SUNcGroup::AdvancedOperations::DDUU(U->Get(x,y,z,2),U->Get(x-1,y,z,0),U->Get(x-1
 
 #define COMPUTE_MOVED_PLAQUETTES(x,y,z,U)\
 \
-SUNcGroup::AdvancedOperations::UUD(U->Get(x,y,z,0),Uxy,U->Get(x,y,z,0),Ux_Uxy_Dx); \
-SUNcGroup::AdvancedOperations::DUU(U->Get(x,y-1,z,1),UxMy,U->Get(x,y-1,z,1),Dy_UxMy_Uy); \
-SUNcGroup::AdvancedOperations::UUD(U->Get(x,y-1,z,0),Dy_UxMy_Uy,U->Get(x,y-1,z,0),UxDy_UxMy_UyDx); \
-\
+SUNcGroup::AdvancedOperations::DUU(U->Get(x,y,z,0),Uxy,U->Get(x,y,z,0),Dx_Uxy_Ux); \
+SUNcGroup::AdvancedOperations::UUD(U->Get(x,y-1,z,1),UxMy,U->Get(x,y-1,z,1),Uymy_UxMy_Dymy); \
+SUNcGroup::AdvancedOperations::DUU(U->Get(x,y-1,z,0),Uymy_UxMy_Dymy,U->Get(x,y-1,z,0),DxmyUymy_UxMy_DymyUxmy); \
 SUNcGroup::AdvancedOperations::DUU(U->Get(x,y,z,0),Uzx,U->Get(x,y,z,0),Dx_Uzx_Ux); \
-SUNcGroup::AdvancedOperations::UUD(U->Get(x,y,z-1,2),UMzx,U->Get(x,y,z-1,2),Uz_UMzx_Dz); \
-SUNcGroup::AdvancedOperations::DUU(U->Get(x,y,z-1,0),Uz_UMzx_Dz,U->Get(x,y,z-1,0),DxUz_UMzx_DzUx); \
+SUNcGroup::AdvancedOperations::UUD(U->Get(x,y,z-1,2),UMzx,U->Get(x,y,z-1,2),Uzmz_UMzx_Dzmz); \
+SUNcGroup::AdvancedOperations::DUU(U->Get(x,y,z-1,0),Uzmz_UMzx_Dzmz,U->Get(x,y,z-1,0),DxmzUzmz_UMzx_DzmzUxmz); \
 \
 SUNcGroup::AdvancedOperations::DUU(U->Get(x,y,z,1),Uxy,U->Get(x,y,z,1),Dy_Uxy_Uy); \
-SUNcGroup::AdvancedOperations::UUD(U->Get(x-1,y,z,0),UMxy,U->Get(x-1,y,z,0),Ux_UMxy_Dx); \
-SUNcGroup::AdvancedOperations::DUU(U->Get(x-1,y,z,1),Ux_UMxy_Dx,U->Get(x-1,y,z,1),DyUx_UMxy_DxUy); \
+SUNcGroup::AdvancedOperations::UUD(U->Get(x-1,y,z,0),UMxy,U->Get(x-1,y,z,0),Uxmx_UMxy_Dxmx); \
+SUNcGroup::AdvancedOperations::DUU(U->Get(x-1,y,z,1),Uxmx_UMxy_Dxmx,U->Get(x-1,y,z,1),DymxUxmx_UMxy_DxmxUymx); \
+SUNcGroup::AdvancedOperations::DUU(U->Get(x,y,z,1),Uyz,U->Get(x,y,z,1),Dy_Uyz_Uy); \
+SUNcGroup::AdvancedOperations::UUD(U->Get(x,y,z-1,2),UyMz,U->Get(x,y,z-1,2),Uzmz_UyMz_Dzmz); \
+SUNcGroup::AdvancedOperations::DUU(U->Get(x,y,z-1,1),Uzmz_UyMz_Dzmz,U->Get(x,y,z-1,1),DymzUzmz_UyMz_DzmzUymz); \
 \
-SUNcGroup::AdvancedOperations::UUD(U->Get(x,y,z,1),Uyz,U->Get(x,y,z,1),Uy_Uyz_Dy); \
-SUNcGroup::AdvancedOperations::DUU(U->Get(x,y,z-1,2),UyMz,U->Get(x,y,z-1,2),Dz_UyMz_Uz); \
-SUNcGroup::AdvancedOperations::UUD(U->Get(x,y,z-1,1),Dz_UyMz_Uz,U->Get(x,y,z-1,1),UyDz_UyMz_UzDy); \
-\
-SUNcGroup::AdvancedOperations::UUD(U->Get(x,y,z,2),Uzx,U->Get(x,y,z,2),Uz_Uzx_Dz); \
-SUNcGroup::AdvancedOperations::DUU(U->Get(x-1,y,z,0),UzMx,U->Get(x-1,y,z,0),Dx_UzMx_Ux); \
-SUNcGroup::AdvancedOperations::UUD(U->Get(x-1,y,z,2),Dx_UzMx_Ux,U->Get(x-1,y,z,2),UzDx_UzMx_UxDz); \
-\
+SUNcGroup::AdvancedOperations::DUU(U->Get(x,y,z,2),Uzx,U->Get(x,y,z,2),Dz_Uzx_Uz); \
+SUNcGroup::AdvancedOperations::UUD(U->Get(x-1,y,z,0),UzMx,U->Get(x-1,y,z,0),Uxmx_UzMx_Dxmx); \
+SUNcGroup::AdvancedOperations::DUU(U->Get(x-1,y,z,2),Uxmx_UzMx_Dxmx,U->Get(x-1,y,z,2),DzmxUxmx_UzMx_DxmxUzmx); \
 SUNcGroup::AdvancedOperations::DUU(U->Get(x,y,z,2),Uyz,U->Get(x,y,z,2),Dz_Uyz_Uz); \
-SUNcGroup::AdvancedOperations::UUD(U->Get(x,y-1,z,1),UMyz,U->Get(x,y-1,z,1),Uy_UMyz_Dy); \
-SUNcGroup::AdvancedOperations::DUU(U->Get(x,y-1,z,2),Uy_UMyz_Dy,U->Get(x,y-1,z,2),DzUy_UMyz_DyUz);
+SUNcGroup::AdvancedOperations::UUD(U->Get(x,y-1,z,1),UMyz,U->Get(x,y-1,z,1),Uymy_UMyz_Dymy); \
+SUNcGroup::AdvancedOperations::DUU(U->Get(x,y-1,z,2),Uymy_UMyz_Dymy,U->Get(x,y-1,z,2),DzmyUymy_UMyz_DymyUzmy);
 
 //HERE I WILL ATTEMPT TO CONSTRUCT ALL THE NEW PLAQUETTES WE NEED
 #define SET_SECOND_PWR_PLAQUETTE_BUFFERS() \
@@ -420,29 +408,26 @@ SUNcGroup::Operations::ReTrIGenU(UMzMx,ReTrITaUMzMx);
 
 #define COMPUTE_MOVED_COLOR_TRACES()\
 \
-SUNcGroup::Operations::ReTrIGenU(Ux_Uxy_Dx,ReTrITaUx_Uxy_Dx); \
-SUNcGroup::Operations::ReTrIGenU(Dy_UxMy_Uy,ReTrITaDy_UxMy_Uy); \
-SUNcGroup::Operations::ReTrIGenU(UxDy_UxMy_UyDx,ReTrITaUxDy_UxMy_UyDx); \
-\
+SUNcGroup::Operations::ReTrIGenU(Dx_Uxy_Ux,ReTrITaDx_Uxy_Ux); \
+SUNcGroup::Operations::ReTrIGenU(Uymy_UxMy_Dymy,ReTrITaUymy_UxMy_Dymy); \
+SUNcGroup::Operations::ReTrIGenU(DxmyUymy_UxMy_DymyUxmy,ReTrITaDxmyUymy_UxMy_DymyUxmy); \
 SUNcGroup::Operations::ReTrIGenU(Dx_Uzx_Ux,ReTrITaDx_Uzx_Ux); \
-SUNcGroup::Operations::ReTrIGenU(Uz_UMzx_Dz,ReTrITaUz_UMzx_Dz); \
-SUNcGroup::Operations::ReTrIGenU(DxUz_UMzx_DzUx,ReTrITaDxUz_UMzx_DzUx); \
+SUNcGroup::Operations::ReTrIGenU(Uzmz_UMzx_Dzmz,ReTrITaUzmz_UMzx_Dzmz); \
+SUNcGroup::Operations::ReTrIGenU(DxmzUzmz_UMzx_DzmzUxmz,ReTrITaDxmzUzmz_UMzx_DzmzUxmz); \
 \
 SUNcGroup::Operations::ReTrIGenU(Dy_Uxy_Uy,ReTrITaDy_Uxy_Uy); \
-SUNcGroup::Operations::ReTrIGenU(Ux_UMxy_Dx,ReTrITaUx_UMxy_Dx); \
-SUNcGroup::Operations::ReTrIGenU(DyUx_UMxy_DxUy,ReTrITaDyUx_UMxy_DxUy); \
+SUNcGroup::Operations::ReTrIGenU(Uxmx_UMxy_Dxmx,ReTrITaUxmx_UMxy_Dxmx); \
+SUNcGroup::Operations::ReTrIGenU(DymxUxmx_UMxy_DxmxUymx,ReTrITaDymxUxmx_UMxy_DxmxUymx); \
+SUNcGroup::Operations::ReTrIGenU(Dy_Uyz_Uy,ReTrITaDy_Uyz_Uy); \
+SUNcGroup::Operations::ReTrIGenU(Uzmz_UyMz_Dzmz,ReTrITaUzmz_UyMz_Dzmz); \
+SUNcGroup::Operations::ReTrIGenU(DymzUzmz_UyMz_DzmzUymz,ReTrITaDymzUzmz_UyMz_DzmzUymz); \
 \
-SUNcGroup::Operations::ReTrIGenU(Uy_Uyz_Dy,ReTrITaUy_Uyz_Dy); \
-SUNcGroup::Operations::ReTrIGenU(Dz_UyMz_Uz,ReTrITaDz_UyMz_Uz); \
-SUNcGroup::Operations::ReTrIGenU(UyDz_UyMz_UzDy,ReTrITaUyDz_UyMz_UzDy); \
-\
-SUNcGroup::Operations::ReTrIGenU(Uz_Uzx_Dz,ReTrITaUz_Uzx_Dz); \
-SUNcGroup::Operations::ReTrIGenU(Dx_UzMx_Ux,ReTrITaDx_UzMx_Ux); \
-SUNcGroup::Operations::ReTrIGenU(UzDx_UzMx_UxDz,ReTrITaUzDx_UzMx_UxDz); \
-\
+SUNcGroup::Operations::ReTrIGenU(Dz_Uzx_Uz,ReTrITaDz_Uzx_Uz); \
+SUNcGroup::Operations::ReTrIGenU(Uxmx_UzMx_Dxmx,ReTrITaUxmx_UzMx_Dxmx); \
+SUNcGroup::Operations::ReTrIGenU(DzmxUxmx_UzMx_DxmxUzmx,ReTrITaDzmxUxmx_UzMx_DxmxUzmx); \
 SUNcGroup::Operations::ReTrIGenU(Dz_Uyz_Uz,ReTrITaDz_Uyz_Uz); \
-SUNcGroup::Operations::ReTrIGenU(Uy_UMyz_Dy,ReTrITaUy_UMyz_Dy); \
-SUNcGroup::Operations::ReTrIGenU(DzUy_UMyz_DyUz,ReTrITaDzUy_UMyz_DyUz); 
+SUNcGroup::Operations::ReTrIGenU(Uymy_UMyz_Dymy,ReTrITaUymy_UMyz_Dymy); \
+SUNcGroup::Operations::ReTrIGenU(DzmyUymy_UMyz_DymyUzmy,ReTrITaDzmyUymy_UMyz_DymyUzmy); 
 
 
 #endif

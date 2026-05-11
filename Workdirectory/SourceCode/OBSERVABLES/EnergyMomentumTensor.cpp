@@ -211,36 +211,36 @@ namespace Observables {
 
 							//T0Xmod
 							T0Xmod+=- (OJcoef[0] * E->Get(x,y,z,1,a)[0] * ((-1)*ReTrITaUxy[a]) * NormFactor );
-							T0Xmod+=- (OJcoef[0] * E->Get(x+1,y,z,1,a)[0] * ((-1)*ReTrITaUx_Uxy_Dx[a]) * NormFactor );
-							T0Xmod+=- (OJcoef[0] * E->Get(x,y-1,z,1,a)[0] * ((-1)*ReTrITaDy_UxMy_Uy[a]) * NormFactor );
-							T0Xmod+=- (OJcoef[0] * E->Get(x+1,y-1,z,1,a)[0] * ((-1)*ReTrITaUxDy_UxMy_UyDx[a]) * NormFactor );
+							T0Xmod+=- (OJcoef[0] * E->Get(x+1,y,z,1,a)[0] * ((-1)*ReTrITaDx_Uxy_Ux[a]) * NormFactor );
+							T0Xmod+=- (OJcoef[0] * E->Get(x,y-1,z,1,a)[0] * ((-1)*ReTrITaUymy_UxMy_Dymy[a]) * NormFactor );
+							T0Xmod+=- (OJcoef[0] * E->Get(x+1,y-1,z,1,a)[0] * ((-1)*ReTrITaDxmyUymy_UxMy_DymyUxmy[a]) * NormFactor );
 
 							T0Xmod+=- (OJcoef[0] * E->Get(x,y,z,2,a)[0] * ReTrITaUzx[a] * NormFactor );
 							T0Xmod+=- (OJcoef[0] * E->Get(x+1,y,z,2,a)[0] * ReTrITaDx_Uzx_Ux[a] * NormFactor );
-							T0Xmod+=- (OJcoef[0] * E->Get(x,y,z-1,2,a)[0] * ReTrITaUz_UMzx_Dz[a] * NormFactor );
-							T0Xmod+=- (OJcoef[0] * E->Get(x+1,y,z-1,2,a)[0] * ReTrITaDxUz_UMzx_DzUx[a] * NormFactor );
+							T0Xmod+=- (OJcoef[0] * E->Get(x,y,z-1,2,a)[0] * ReTrITaUzmz_UMzx_Dzmz[a] * NormFactor );
+							T0Xmod+=- (OJcoef[0] * E->Get(x+1,y,z-1,2,a)[0] * ReTrITaDxmzUzmz_UMzx_DzmzUxmz[a] * NormFactor );
 
 							//T0Ymod
 							T0Ymod+=- (OJcoef[1] * E->Get(x,y,z,0,a)[0] * ReTrITaUxy[a] * NormFactor );
 							T0Ymod+=- (OJcoef[1] * E->Get(x,y+1,z,0,a)[0] * ReTrITaDy_Uxy_Uy[a] * NormFactor );
-							T0Ymod+=- (OJcoef[1] * E->Get(x-1,y,z,0,a)[0] * ReTrITaUx_UMxy_Dx[a] * NormFactor );
-							T0Ymod+=- (OJcoef[1] * E->Get(x-1,y+1,z,0,a)[0] * ReTrITaDyUx_UMxy_DxUy[a] * NormFactor );
+							T0Ymod+=- (OJcoef[1] * E->Get(x-1,y,z,0,a)[0] * ReTrITaUxmx_UMxy_Dxmx[a] * NormFactor );
+							T0Ymod+=- (OJcoef[1] * E->Get(x-1,y+1,z,0,a)[0] * ReTrITaDymxUxmx_UMxy_DxmxUymx[a] * NormFactor );
 
 							T0Ymod+=- (OJcoef[1] * E->Get(x,y,z,2,a)[0] * ((-1)*ReTrITaUyz[a]) * NormFactor );
-							T0Ymod+=- (OJcoef[1] * E->Get(x,y+1,z,2,a)[0] * ((-1)*ReTrITaUy_Uyz_Dy[a]) * NormFactor );
-							T0Ymod+=- (OJcoef[1] * E->Get(x,y,z-1,2,a)[0] * ((-1)*ReTrITaDz_UyMz_Uz[a]) * NormFactor );
-							T0Ymod+=- (OJcoef[1] * E->Get(x,y+1,z-1,2,a)[0] * ((-1)*ReTrITaUyDz_UyMz_UzDy[a]) * NormFactor );
+							T0Ymod+=- (OJcoef[1] * E->Get(x,y+1,z,2,a)[0] * ((-1)*ReTrITaDy_Uyz_Uy[a]) * NormFactor );
+							T0Ymod+=- (OJcoef[1] * E->Get(x,y,z-1,2,a)[0] * ((-1)*ReTrITaUzmz_UyMz_Dzmz[a]) * NormFactor );
+							T0Ymod+=- (OJcoef[1] * E->Get(x,y+1,z-1,2,a)[0] * ((-1)*ReTrITaDymzUzmz_UyMz_DzmzUymz[a]) * NormFactor );
 
 							//T0Zmod
 							T0Zmod+=- (OJcoef[2] * E->Get(x,y,z,0,a)[0] * ((-1)*ReTrITaUzx[a]) * NormFactor );
-							T0Zmod+=- (OJcoef[2] * E->Get(x,y,z+1,0,a)[0] * ((-1)*ReTrITaUz_Uzx_Dz[a]) * NormFactor );
-							T0Zmod+=- (OJcoef[2] * E->Get(x-1,y,z,0,a)[0] * ((-1)*ReTrITaDx_UzMx_Ux[a]) * NormFactor );
-							T0Zmod+=- (OJcoef[2] * E->Get(x-1,y,z+1,0,a)[0] * ((-1)*ReTrITaUzDx_UzMx_UxDz[a]) * NormFactor );
+							T0Zmod+=- (OJcoef[2] * E->Get(x,y,z+1,0,a)[0] * ((-1)*ReTrITaDz_Uzx_Uz[a]) * NormFactor );
+							T0Zmod+=- (OJcoef[2] * E->Get(x-1,y,z,0,a)[0] * ReTrITaUxmx_UzMx_Dxmx[a] * NormFactor );
+							T0Zmod+=- (OJcoef[2] * E->Get(x-1,y,z+1,0,a)[0] * ReTrITaDzmxUxmx_UzMx_DxmxUzmx[a] * NormFactor );
 
 							T0Zmod+=- (OJcoef[2] * E->Get(x,y,z,1,a)[0] * ReTrITaUyz[a] * NormFactor );
 							T0Zmod+=- (OJcoef[2] * E->Get(x,y,z+1,1,a)[0] * ReTrITaDz_Uyz_Uz[a] * NormFactor );
-							T0Zmod+=- (OJcoef[2] * E->Get(x,y-1,z,1,a)[0] * ReTrITaUy_UMyz_Dy[a] * NormFactor );
-							T0Zmod+=- (OJcoef[2] * E->Get(x,y-1,z+1,1,a)[0] * ReTrITaDzUy_UMyz_DyUz[a] * NormFactor );
+							T0Zmod+=- (OJcoef[2] * E->Get(x,y-1,z,1,a)[0] * ((-1)*ReTrITaUymy_UMyz_Dymy[a]) * NormFactor );
+							T0Zmod+=- (OJcoef[2] * E->Get(x,y-1,z+1,1,a)[0] * ((-1)*ReTrITaDzmyUymy_UMyz_DymyUzmy[a]) * NormFactor );
 							
 						}
 							
