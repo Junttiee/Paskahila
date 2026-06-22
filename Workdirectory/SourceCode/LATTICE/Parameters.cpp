@@ -5,12 +5,12 @@ namespace Parameters{
 	
 	INT LeftNucleus=1;		INT RightNucleus=1;
 
-	DOUBLE Qs0A=0.125/sqrt(Lattice::a[0]*Lattice::a[1]);
+	DOUBLE Qs0A=0.25/sqrt(Lattice::a[0]*Lattice::a[1]);
 
 	//********** with different value of Qs0A for right and left nuclei ****//
-	DOUBLE Qs0A_L=0.125/sqrt(Lattice::a[0]*Lattice::a[1]);
+	DOUBLE Qs0A_L=0.25/sqrt(Lattice::a[0]*Lattice::a[1]);
 
-	DOUBLE Qs0A_R=0.125/sqrt(Lattice::a[0]*Lattice::a[1]);
+	DOUBLE Qs0A_R=0.25/sqrt(Lattice::a[0]*Lattice::a[1]);
 
 	//********** with different value of Qs0A for right and left nuclei ****//
 

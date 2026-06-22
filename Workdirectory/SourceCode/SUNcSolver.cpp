@@ -8,7 +8,7 @@
 #include "MISC/Timing.cpp"
 
 // INCLUDE SIMULATION PROCEDURE //
-#include "Simulation.cpp"
+//#include "Simulation.cpp"
 
 //INCLUDE SIMULATION PROCEDURE FOR PHYSICAL CHARGES //
 // #include "SimulationmitPC.cpp"
@@ -21,7 +21,7 @@
 //#include "LeftNucleusSimulation.cpp"
 
 // INCLUDE SIMULATION PROCEDURE FOR RIGHT NUCLEUS //
-//#include "RightNucleusSimulation.cpp"
+#include "RightNucleusSimulation.cpp"
 
 // GLOBAL RANDOM GENERATOR SEED //
 INT GLOBAL_RNG_SEED;

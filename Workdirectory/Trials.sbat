@@ -1,6 +1,6 @@
 #!/bin/bash -l
 
-#SBATCH --job-name=Collide1
+#SBATCH --job-name=NewBoxTest
 #SBATCH --account=lappi
 #SBATCH --partition=test
 
@@ -11,4 +11,4 @@
 
 module add fftw/3.3.10-mpi-omp gsl
 
-./SUNcSolver.exe -Nx 128 -Ny 128 -Nz 512 -ax 1.0 -ay 1.0 -az 0.25 -o NewTest1
+./CollSUNcSolver.exe -Nx 64 -Ny 64 -Nz 512 -ax 2.0 -ay 2.0 -az 0.5 -o NewTest2
