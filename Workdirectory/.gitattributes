@@ -1,0 +1,2 @@
+# Preserve Linux line endings for the launcher on Windows checkouts.
+run-small.sh text eol=lf

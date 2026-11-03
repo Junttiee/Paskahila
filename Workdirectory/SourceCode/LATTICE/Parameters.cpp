@@ -22,9 +22,9 @@ namespace Parameters{
     // IR CUT-OFF //
 	DOUBLE MEff=Qs0A;
     
-    DOUBLE SigmaLOverAzL=16;
+    DOUBLE SigmaLOverAzL=4;
 	
-	DOUBLE SigmaLOverAzR=16;
+	DOUBLE SigmaLOverAzR=4;
 	
 	//EXPLICITLY FOR PHYSICAL CHARGES//
 	//Transverse scales are Qs,a_\perp and R_p. With R_p=2GeV^-1, two dimensionless combination of scales are QsR_p and Qsa_\perp//
@@ -46,8 +46,8 @@ namespace Parameters{
 	DOUBLE aCubeInFm=aXInFm*aYInFm*aZInFm;
 
 	INT Load=0;
-	//Will kill simulation at EMTDynT=EndSimulationT
-	DOUBLE EndSimulationT=88; // this is estimated from previous runs to be sufficent amount of data
+	// ENDING TIME FOR THE SMALL LOCAL TEST (ABOUT 100 STEPS AT dT=0.008) //
+	DOUBLE EndSimulationT=0.8;
 	
 }
 

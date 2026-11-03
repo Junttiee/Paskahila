@@ -24,7 +24,7 @@
 #include "RightNucleusSimulation.cpp"
 
 // GLOBAL RANDOM GENERATOR SEED //
-INT GLOBAL_RNG_SEED;
+INT GLOBAL_RNG_SEED=1;
 
 // INCLUDE COMMANDLINE PROCESSING //
 #include "IO/COMMANDLINE/cfile.c"
