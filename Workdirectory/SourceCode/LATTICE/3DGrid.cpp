@@ -16,8 +16,8 @@ namespace Lattice{
     //DIMENSION OF THE LATTICE
     static const int Dimension=3;
 
-    //NUMBER OF LATTICE SITES //
-    INT N[3]={128,128,2048};
+    // SMALL LOCAL TEST GRID //
+    INT N[3]={16,16,256};
     
     // LATTICE SPACINGS //0.01171 //NEXT TIME WHILE PUTTING VALUE FOR AZ FOR REALISTIC CASE RE CALCULATE IT?/
     DOUBLE a[3]={1.0,1.0,0.25};
