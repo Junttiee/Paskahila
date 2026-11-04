@@ -5,17 +5,19 @@ set -euo pipefail
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
 
 usage() {
-    printf 'Usage: %s {A|B} {pilot|main}\n' "$0" >&2
-    printf 'Optional: set COLLISION_DT=0.008 for the later Grid B main-run extension.\n' >&2
+    printf 'Usage: %s {A|B} {pilot|main} [collision|left-only|right-only]\n' "$0" >&2
+    printf 'The single-nucleus modes are for Grid B main runs.\n' >&2
+    printf 'Set COLLISION_DT=0.008 for Grid B fine-step runs; default is 0.08.\n' >&2
 }
 
-if [[ $# -ne 2 ]]; then
+if [[ $# -lt 2 || $# -gt 3 ]]; then
     usage
     exit 2
 fi
 
 grid="$1"
 stage="$2"
+run_type="${3:-collision}"
 dt="${COLLISION_DT:-0.08}"
 seed="${COLLISION_SEED:-1}"
 threads="${OMP_NUM_THREADS:-8}"
@@ -87,6 +89,34 @@ case "$stage" in
         ;;
 esac
 
+case "$run_type" in
+    collision)
+        left_multiplier=1
+        right_multiplier=1
+        run_label="$role"
+        ;;
+    left-only)
+        left_multiplier=1
+        right_multiplier=0
+        run_label="left-only-$role"
+        ;;
+    right-only)
+        left_multiplier=0
+        right_multiplier=1
+        run_label="right-only-$role"
+        ;;
+    *)
+        usage
+        printf 'Run type must be collision, left-only or right-only.\n' >&2
+        exit 2
+        ;;
+esac
+
+if [[ "$run_type" != "collision" && ( "$grid" != "B" || "$stage" != "main" ) ]]; then
+    printf 'Single-nucleus controls are currently defined only for Grid B main runs.\n' >&2
+    exit 2
+fi
+
 if [[ ! -x "$executable" ]]; then
     printf 'Executable not found: %s\nRun bash build-collision-spacing-4-to-1.sh first.\n' "$executable" >&2
     exit 1
@@ -97,7 +127,7 @@ if [[ ! -r "${executable}.build-info.txt" ]]; then
 fi
 
 mkdir -p runs
-run_dir="$(mktemp -d "runs/collision-spacing-4-to-1-${grid}-${role}-XXXXXX")"
+run_dir="$(mktemp -d "runs/collision-spacing-4-to-1-${grid}-${run_label}-XXXXXX")"
 repo_root="$(git -C "$(pwd)/.." rev-parse --show-toplevel)"
 nominal_steps="$(awk -v end="$endpoint" -v step="$dt" 'BEGIN {printf "%.0f", end / step}')"
 start_time="$(date -Is)"
@@ -108,7 +138,7 @@ run_args=(
     -dT "$dt"
     -RlOverAzL "$width" -RlOverAzR "$width"
     -QsA 0.125 -MEff 0.125 -Lambda 0.625
-    -NucleusL 1 -NucleusR 1 -SEED "$seed" -o "$run_dir"
+    -NucleusL "$left_multiplier" -NucleusR "$right_multiplier" -SEED "$seed" -o "$run_dir"
 )
 
 manifest="$run_dir/MANIFEST.txt"
@@ -117,6 +147,7 @@ manifest="$run_dir/MANIFEST.txt"
     printf 'procedure=Simulation.cpp\n'
     printf 'model=SU(2)\n'
     printf 'stage=%s\n' "$stage"
+    printf 'run_type=%s\n' "$run_type"
     printf 'grid=%s\n' "$grid_label"
     printf 'started=%s\n' "$start_time"
     printf 'source_revision='
@@ -142,7 +173,7 @@ manifest="$run_dir/MANIFEST.txt"
     printf 'ax_ay_az=%s %s %s\n' "$ax" "$ay" "$az"
     printf 'box_lengths=%s %s %s\n' "$lx" "$ly" "$lz"
     printf 'sigma_z_over_az_left_right=%s %s\n' "$width" "$width"
-    printf 'charge_density_multipliers_left_right=1 1\n'
+    printf 'charge_density_multipliers_left_right=%s %s\n' "$left_multiplier" "$right_multiplier"
     printf 'boundary_conditions=existing periodic x/y and open z\n'
     printf 'center_rule=int(0.85*Nz/2-1), int(1.15*Nz/2-1)\n'
     printf 'center_indices_left_right=%s %s\n' "$center_l" "$center_r"
@@ -153,7 +184,9 @@ manifest="$run_dir/MANIFEST.txt"
     printf 'seed=%s\ndT=%s\nendpoint_from_initialization=%s\n' "$seed" "$dt" "$endpoint"
     printf 'nominal_steps=%s\n' "$nominal_steps"
     printf 'threads=%s\nOMP_DYNAMIC=%s\n' "$OMP_NUM_THREADS" "$OMP_DYNAMIC"
-    printf 'profile_cadence=every 100 steps\n'
+    profile_steps="$(awk -v interval=0.8 -v step="$dt" 'BEGIN {printf "%.0f", interval / step}')"
+    printf 'emt_profile_cadence_simulation_time=0.8\n'
+    printf 'emt_profile_cadence_steps=%s\n' "$profile_steps"
     printf 'output_directory=%s\n' "$run_dir"
     printf 'resource_usage_file=%s/resource-usage.txt\n' "$run_dir"
     printf 'command='
