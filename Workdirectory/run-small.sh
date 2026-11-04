@@ -10,7 +10,12 @@ if [[ ! -x "$solver" ]]; then
     exit 1
 fi
 
-export OMP_NUM_THREADS=1
+export OMP_NUM_THREADS="${OMP_NUM_THREADS:-1}"
+export OMP_DYNAMIC="${OMP_DYNAMIC:-FALSE}"
+if [[ ! "$OMP_NUM_THREADS" =~ ^[1-9][0-9]*$ ]]; then
+    printf 'OMP_NUM_THREADS must be a positive integer.\n' >&2
+    exit 1
+fi
 
 mkdir -p runs
 run_dir=$(mktemp -d runs/first-right-XXXXXX)

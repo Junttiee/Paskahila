@@ -2,6 +2,8 @@
 
 This is a C++ research code for real-time classical Yang–Mills fields on a three-dimensional lattice, with initial conditions for individual nuclei and nucleus collisions. You run a command-line solver and inspect the text files it writes. The selected gauge group in this checkout is **SU(2)**.
 
+For the active collision studies and implementation handoff, start with [PLANS.md](PLANS.md). This guide describes the existing source, historical output and short-test workflow; its defaults are not the planned collision configuration.
+
 This guide was updated for the small local test defaults on 4 November 2026. The user compiled and ran the solver successfully in Ubuntu under WSL 2, with GCC 15.2 and GSL 2.8 available. The saved log and output files were inspected afterward; the recorded reference values are listed below.
 
 ## 1. Start with results that already exist
@@ -116,7 +118,7 @@ When ready to execute, use the prepared launcher:
 bash run-small.sh
 ```
 
-The launcher sets `OMP_NUM_THREADS=1`, passes the small grid, spacings, time step, widths, and seed explicitly, and creates a fresh `runs/first-right-XXXXXX` output directory with a `run.log` file. Its default executable is `build/RightSUNcSolver-small`; an alternative executable path can be passed as its first argument. Compile the selected executable from the current source before launching.
+The launcher defaults to `OMP_NUM_THREADS=1`, honors an explicitly supplied positive integer thread count, passes the small grid, spacings, time step, widths, and seed explicitly, and creates a fresh `runs/first-right-XXXXXX` output directory with a `run.log` file. It defaults to `OMP_DYNAMIC=FALSE` so the thread count stays fixed. Its default executable is `build/RightSUNcSolver-small`; an alternative executable path can be passed as its first argument. Compile the selected executable from the current source before launching.
 
 This is a deliberately small exercise to learn the workflow, with narrower longitudinal profiles. It is not a validated physics configuration. Thread count is selected by the launcher; when launching the solver directly, set `OMP_NUM_THREADS=1` for the same first-test setup.
 
@@ -138,6 +140,45 @@ The saved run from 4 November 2026 completed with one thread, seed `1`, SU(2), a
 | RMS Gauss-law residual | `2.25208651922912e-19` | `1.35710330884308e-16` |
 
 These values record the first working setup for later comparisons; they do not establish physical convergence or acceptance thresholds. Compiler and library differences can change floating-point results. The generated executable and full output remain local under `build/` and `runs/`, which are excluded from Git.
+
+### Use more CPU threads
+
+The solver already divides field and current updates between CPU threads with OpenMP. It also initializes FFTW's threaded transforms using the OpenMP thread count. Keep `-fopenmp`, `-lfftw3_omp`, and `-lfftw3` in the build command. This matches [FFTW's documented OpenMP setup](https://www.fftw.org/fftw3_doc/Usage-of-Multi_002dthreaded-FFTW.html).
+
+From Ubuntu, use eight threads for the existing small test with:
+
+```bash
+OMP_NUM_THREADS=8 bash run-small.sh
+```
+
+The workers share one lattice in one solver process. Run the study configurations sequentially and select the thread count from measurements, since more threads do not guarantee a faster run.
+
+To build a separate executable and measure scaling on the planned coarse grid, run from this directory in Ubuntu:
+
+```bash
+g++ -std=gnu++14 -O2 -fopenmp \
+  SourceCode/SUNcSolver.cpp \
+  -o build/RightSUNcSolver-threads \
+  -lgsl -lgslcblas -lfftw3_omp -lfftw3 -lm
+
+python3 benchmark-threads.py
+```
+
+The benchmark runs 1, 2, 4, 8 and 16 threads sequentially on `64 × 64 × 256`, with spacings `2, 2, 1`. It uses the current short-test physics, `dT=0.008` and source ending time `0.8`; these outputs are performance measurements rather than discretization-study results. The collision configuration still needs the source-amplitude and endpoint preparation in [PLANS.md](PLANS.md). The active plans preserve the existing center formulas and random sampling, and record their implications for cross-grid comparisons.
+
+Each run gets a fresh output directory. The benchmark checks completion, FFTW initialization, finite output and agreement of energy and longitudinal profiles with the one-thread run. The relative tolerance is `1e-10`; the profile absolute tolerance is `1e-12`. The energy-file absolute tolerance is `1e-12` times the initial bulk energy, since small transverse stresses subtract large sums and amplify relative roundoff. It records both evolution-step timing and total elapsed time, and saves summaries and commands under `runs/thread-benchmark-*/`. Step timing omits the first ten steps and excludes some diagnostic work; total time includes initialization and output. Use `--repeats 2` for a more stable comparison or `--threads 1 4 8` for a smaller sweep. Use `--resume runs/thread-benchmark-<name>` to recheck and reuse completed measurements after an interruption. The benchmark requires the current source ending time of `0.8` and a freshly compiled executable.
+
+The first coarse-grid sweep on 4 November 2026 completed with all numerical comparisons passing:
+
+| CPU threads | Seconds per evolution step | Total seconds for the 100-step pilot |
+| --- | ---: | ---: |
+| 1 | 0.989 | 200.9 |
+| 2 | 0.492 | 105.3 |
+| 4 | 0.256 | 54.8 |
+| 8 | 0.153 | 33.4 |
+| 16 | 0.116 | 30.4 |
+
+Eight threads gave about a sixfold reduction in total time and are the initial working choice. Sixteen were fastest in this sweep, with about a further 9% reduction in total time. This is one short sweep, not a measurement of the final study configuration or larger grids. Raw measurements and summaries are in `runs/thread-benchmark-2c2gsgcw/`. Ubuntu reported 24 available logical CPUs and about 14 GiB of available memory during preparation.
 
 ## 5. Know which settings are adjustable
 
