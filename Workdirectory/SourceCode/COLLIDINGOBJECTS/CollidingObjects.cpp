@@ -23,8 +23,9 @@ namespace CollidingObjects{
     }
     
 	 /////////////////////////////////////////////////////////////////////////////////////////////////
-	//   rho(z,x_perp)=g*a[2]*a[0]*a[1]*Qs0A*T(z)*ChargeFluctuation(x_perp)                 //
-	//   T(z)==1/(sqrt(2*M_PI*Sigma^2) Exp(-1/2 *((z-z0)^2/Sigma^2)     //
+	// The Poisson solve treats rho as a density. For transverse white noise, //
+	// rho(z,x_perp) = Nucleus * Qs0A * T(z) * xi(x_perp) / sqrt(a_x*a_y),  //
+	// with xi a unit Gaussian and T the normalized longitudinal profile.    //
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     DOUBLE LongitudinalProfile(INT z,INT Center,DOUBLE Width){
@@ -33,7 +34,7 @@ namespace CollidingObjects{
 	   
     void SetChargeDensities(INT xLow,INT xHigh,INT yLow,INT yHigh,INT zStep,INT Center,DOUBLE* ChargeFluctuations,ChargeDensity *rhoOld,ChargeDensity *rho,char D){
 	   
-	   INT z=zStep; DOUBLE Value; DOUBLE Normalization=sqrt(Lattice::a[0]*Lattice::a[1]);
+	   INT z=zStep; DOUBLE Value; DOUBLE Normalization=1.0/sqrt(Lattice::a[0]*Lattice::a[1]);
 	   		
 	   for(INT y=yLow;y<=yHigh;y++){
 		  for(INT x=xLow;x<=xHigh;x++){
