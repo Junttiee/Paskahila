@@ -8,7 +8,11 @@
 #include "MISC/Timing.cpp"
 
 // INCLUDE SIMULATION PROCEDURE //
-//#include "Simulation.cpp"
+#if defined(COLLISION_STUDY_BUILD)
+#include "Simulation.cpp"
+#else
+#include "RightNucleusSimulation.cpp"
+#endif
 
 //INCLUDE SIMULATION PROCEDURE FOR PHYSICAL CHARGES //
 // #include "SimulationmitPC.cpp"
@@ -19,9 +23,6 @@
 
 // INCLUDE SIMULATION PROCEDURE FOR LEFT NUCLEUS //
 //#include "LeftNucleusSimulation.cpp"
-
-// INCLUDE SIMULATION PROCEDURE FOR RIGHT NUCLEUS //
-#include "RightNucleusSimulation.cpp"
 
 // GLOBAL RANDOM GENERATOR SEED //
 INT GLOBAL_RNG_SEED=1;

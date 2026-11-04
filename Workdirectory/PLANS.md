@@ -14,9 +14,13 @@ The goal is a collision discretization and resolution-sensitivity demonstration 
 
 The ratio in each collision filename is a_perp:a_z. Both series keep the physical box (128, 128, 256). Do not add a 128 × 128 × 1024 run to the friend's series. Keep each series' time-step check distinct.
 
+The current corrected 4:1 checkpoint, local output paths, reproducible commands and next steps are summarized in [COLLISION_4_TO_1_HANDOFF.md](COLLISION_4_TO_1_HANDOFF.md).
+
+The current corrected 4:1 checkpoint, local output paths, reproducible commands and next steps are summarized in [COLLISION_4_TO_1_HANDOFF.md](COLLISION_4_TO_1_HANDOFF.md).
+
 ## Shared decisions
 
-- Preserve the established evolution equations, source normalization, random-number generator and draw order, center formulas, boundaries, floating-point options and output columns. Start with configuration edits and thin launchers. Additional output frames are a small documented measurement change, not a reason to rewrite dynamics.
+- Preserve the established evolution equations, random-number generator and draw order, center formulas, boundaries, floating-point options and output columns. Use the continuum transverse-density convention: at fixed longitudinal profile and source strength, Var(rho_i) scales as 1/(a_x a_y), so the sampled density amplitude scales as 1/sqrt(a_x a_y). The first 4:1 batch used the opposite area factor and remains a pre-correction baseline; do not combine it with corrected runs.
 - For both nuclei use Q_s = 0.125, Q_s σ_z = 0.5, σ_z = 4, m = 0.125 and Λ = 0.625 in simulation units. Q_s is the input source-strength convention; do not reinterpret 0.125 as Q_s a_perp or assign GeV/fm units without another specification.
 - Retain i_L = int(0.85 N_z/2 − 1) and i_R = int(1.15 N_z/2 − 1), including truncation. Record physical positions, nominal crossing time and midpoint. Use raw and appropriately sampled aligned comparisons; a fixed-center rewrite is outside the current implementation scope.
 - Keep the legacy generator. Identical seed and draw order match sources at the same transverse grid for collision/control and time-step comparisons. The same seed across different transverse meshes does not match physical realizations. A new Fourier-mode generator is not required or scheduled.
@@ -27,24 +31,60 @@ The ratio in each collision filename is a_perp:a_z. Both series keep the physica
 
 ## Current implementation state
 
-As of this handoff, the source still selects `RightNucleusSimulation.cpp` in `SourceCode/SUNcSolver.cpp`. The collision procedure exists in `SourceCode/Simulation.cpp`; left-only and right-only procedures also exist. Exactly one procedure include must be active when building. An executable's name does not select its physics.
+The default build still selects `RightNucleusSimulation.cpp` in `SourceCode/SUNcSolver.cpp`. A build with `COLLISION_STUDY_BUILD` selects the existing collision procedure in `SourceCode/Simulation.cpp`; exactly one procedure include is active. An executable's name does not select its physics.
 
-The study physics has not yet been configured or run. In `SourceCode/LATTICE/Parameters.cpp`, the source defaults remain expressions beginning with 0.25, and `EndSimulationT` remains 0.8. The current transverse-spacing defaults are one, so the initializer amplitude is currently 0.25. Both initialization calls receive `Qs0A_L`. The command-line `-QsA` option changes `Qs0A`, a different variable. Make the actual and recorded strengths agree: a minimal configuration edit can set `Qs0A`, `Qs0A_L` and `Qs0A_R` to the fixed simulation value 0.125. Do not depend on runtime spacing changes to recompute static defaults.
+The collision-study build path in `SourceCode/LATTICE/Parameters.cpp` fixes `Qs0A`, `Qs0A_L`, and `Qs0A_R` to 0.125, `MEff` to 0.125, and `Lambda` to 0.625. Both initialization calls receive `Qs0A_L`; the `-QsA` option changes `Qs0A`, so the study launcher passes it explicitly and the configuration keeps the actual initializer amplitudes consistent. The standard build retains the existing defaults. Study executables require an explicit `COLLISION_STUDY_END_T` at compile time.
 
-Existing runtime options include dimensions, spacings, `-dT`, both width inputs, cutoffs, seed, density multipliers and output directory. There is no endpoint option. Set `EndSimulationT` for each build and rebuild. Preserve the stopping loop initially: floating-point accumulation can produce an extra final step, so record actual counts and compare common saved times. The targeted additional output frames described in the 2:1 plan are not implemented yet.
+`SourceCode/COLLIDINGOBJECTS/CollidingObjects.cpp` now samples the transverse charge density with a `1/sqrt(a_x*a_y)` factor. The Poisson solve uses physical lattice momenta and consumes this array as a density. For a fixed longitudinal profile and nucleus multiplier, `(a_x*a_y)*Var(rho_i)` should equal `(Qs0A*T(z))^2` per color component. The completed 4:1 runs and analysis listed below predate this correction; retain them as historical baseline and rebuild before any corrected-source run.
+
+A GSL check using seed 1, three color components per site, and raw transverse source draws before the longitudinal profile and smoothing measured `(a_x*a_y)*Var(rho_i)` = 0.0158164474 for Grid A (3,072 samples) and 0.0158337893 for Grid B (12,288 samples), against the target `Qs^2 = 0.015625` on both. Applying the old `sqrt(a_x*a_y)` factor to those same draws gives 4.04901054 and 0.253340629, respectively, against targets 4 and 0.25. Both executables were rebuilt with the corrected source, then the corrected pilot and two main runs completed as recorded below.
+
+Existing runtime options include dimensions, spacings, `-dT`, both width inputs, cutoffs, seed, density multipliers and output directory. There is no endpoint option. The build script sets `EndSimulationT` separately for the pilot and main executables. The stopping loop is unchanged; a console marker reports actual final steps and time so the runner can record them. Floating-point accumulation can produce an extra final step, so compare common saved times. The targeted additional output frames described in the 2:1 plan are not implemented yet.
 
 CPU threading is already implemented and tested. `run-small.sh` honors `OMP_NUM_THREADS`; the solver uses OpenMP and threaded FFTW. A 100-step coarse-grid performance sweep took 200.9 seconds with one thread, 33.4 with eight and 30.4 with sixteen. Numerical comparisons passed. Results are in `runs/thread-benchmark-2c2gsgcw/`. These runs used the current short-test physics and dT = 0.008, not the study configuration.
 
-`run-small.sh` still passes the original 16 × 16 × 256 smoke-test arguments. `benchmark-threads.py` expects source ending time 0.8. Neither is a collision-study launcher. Existing binaries and historical output must not be assumed to match the plans.
+`run-small.sh` still passes the original 16 × 16 × 256 smoke-test arguments. `benchmark-threads.py` expects source ending time 0.8. Use `build-collision-spacing-4-to-1.sh` to produce separate t=40 and t=88 collision executables, then `run-collision-spacing-4-to-1.sh A pilot`, `... A main`, and `... B main` to create fresh runs with manifests. The runner defaults to seed 1, eight threads, and dT=0.08; the optional later Grid B time-step run is selected with `COLLISION_DT=0.008`. Existing binaries and historical output must not be assumed to match the plans.
+
+### Completed 4:1 initial batch
+
+The Grid A t=40 pilot and both planned t=88 collision runs completed on 4 November 2026 with seed 1 and eight threads, before the transverse source normalization correction. Each manifest records the source revision and hashes, build recipe, actual endpoint and step count, resources, and complete solver command. Their results remain useful as the original batch baseline but must not be mixed with runs using the corrected density convention.
+
+| Run | Steps / actual endpoint | Wall time | Peak resident memory |
+|---|---:|---:|---:|
+| Grid A pilot, t_end=40 | 501 / 40.0799999999995 | 26 s | 268,188 KiB |
+| Grid A main, t_end=88 | 1,101 / 88.0799999999985 | 56 s | 268,184 KiB |
+| Grid B main, t_end=88 | 1,101 / 88.0799999999985 | 552 s | 2,080,100 KiB |
+
+The unchanged stopping loop took one additional step on each run. All main-run data files were finite; every Grid A profile has 256 rows and every Grid B profile has 512 rows. The main-run Gauss-law maximum/RMS residual peaks were 3.50845e-8 / 1.06815e-10 on Grid A and 4.54265e-11 / 5.60797e-13 on Grid B. These are diagnostics only, not an accuracy criterion.
+
+Main outputs are under `runs/collision-spacing-4-to-1-A-main-t88-mOlDCj/` and `runs/collision-spacing-4-to-1-B-main-t88-ILFQYU/`; the pilot is under `runs/collision-spacing-4-to-1-A-pilot-t40-vbik8S/`. `analyze-collision-spacing-4-to-1.py` generated raw and aligned EMT profiles, crossing-plane histories, and Grid B minus Grid A data under `runs/collision-spacing-4-to-1-analysis/`. Recreate them with `python3 analyze-collision-spacing-4-to-1.py --grid-a runs/collision-spacing-4-to-1-A-main-t88-mOlDCj --grid-b runs/collision-spacing-4-to-1-B-main-t88-ILFQYU --output runs/collision-spacing-4-to-1-analysis`. The CSV compares equal reported profile times, aligns longitudinal coordinates, and records each grid's separate aligned time. It does not interpolate in time across the eight-unit profile interval.
+
+This is a one-seed cross-grid comparison with different transverse meshes, so the differences combine sampling and resolution sensitivity and do not establish convergence. The optional Grid B dT=0.008 run was not part of this initial batch. Matched single-nucleus controls were not run, so these outputs do not isolate an induced EMT tensor.
+
+### Corrected 4:1 rerun
+
+The corrected density convention was run on 4 November 2026 with seed 1 and eight threads. Each fresh manifest records the corrected `CollidingObjects.cpp` hash and source convention.
+
+| Run | Steps / actual endpoint | Wall time | Peak resident memory |
+|---|---:|---:|---:|
+| Grid A pilot, t_end=40 | 501 / 40.0799999999995 | 27 s | 268,000 KiB |
+| Grid A main, t_end=88 | 1,101 / 88.0799999999985 | 58 s | 268,016 KiB |
+| Grid B main, t_end=88 | 1,101 / 88.0799999999985 | 561 s | 2,080,268 KiB |
+
+All runs completed with exit status 0 and finite output. The pilot has six 256-row profiles; each main run has twelve profiles, with 256 rows on Grid A and 512 rows on Grid B. Maximum Gauss-law residuals over time were 5.91042e-12 (RMS 1.00487e-13) for the pilot, 7.57964e-11 (RMS 1.25535e-12) for Grid A main, and 1.23941e-11 (RMS 1.41527e-13) for Grid B main.
+
+Outputs are under `runs/collision-spacing-4-to-1-A-pilot-t40-aTVfkb/`, `runs/collision-spacing-4-to-1-A-main-t88-6gwTqr/`, and `runs/collision-spacing-4-to-1-B-main-t88-asxl1e/`.
+
+The corrected pair was analyzed at 12 reported profile times in `runs/collision-spacing-4-to-1-corrected-analysis/`. The bulk site sums multiplied by cell volume give integrated energy 10.5014 (A) and 9.45867 (B) at t=0, a B/A ratio of 0.9007; at t=88 the ratio is 0.8863. This is far closer than the pre-correction initial ratio of 17.665. In aligned longitudinal profiles, the Grid B minus Grid A RMS difference relative to Grid A at t=24/40/88 was 10.9/11.6/14.2% for T00, 28.7/28.2/29.1% for T0Z, 6.4/17.9/9.4% for transverse pressure P_T, and 10.9/11.6/14.2% for longitudinal pressure P_L. This is a one-seed sensitivity comparison: different transverse meshes do not yield matched physical realizations, so it does not establish convergence. Matched single-nucleus controls remain pending.
 
 ## First implementation steps
 
 1. Read the selected collision plan and [the source and output guide](GETTING_STARTED.md). Preserve existing local changes and historical data. Record the source revision and local configuration differences used for each executable.
-2. Prepare a collision-pilot build by selecting `Simulation.cpp`, setting the actual and recorded source amplitudes to 0.125, and setting `EndSimulationT = 40`. Keep the center and sampling algorithms unchanged. Use a separate pilot executable; do not overwrite historical binaries.
-3. Compile only `SourceCode/SUNcSolver.cpp` from Ubuntu/WSL, using the working recipe below. Build the pilot from the prepared source before launching it.
-4. Create a fresh run directory, pass all dimensions and all spacings explicitly, and use the planned widths, cutoffs, seed and dT. Unknown options are silently ignored, and `--help` is not a harmless help mode. Verify recorded values against the manifest rather than relying on defaults.
-5. Inspect the pilot's finite outputs, initial geometry, pre-impact propagation, post-impact central fields, Gauss-law diagnostics, completion, actual endpoint, peak memory and runtime. Profile files should contain N_z rows. Small Gauss-law residuals alone do not establish physical accuracy. Investigate unexplained diagnostic growth before extending the matrix.
-6. Once the pilot is satisfactory, set `EndSimulationT = 88` and build separately identified main executables. Proceed with the selected plan's matrix and matched controls. Keep the optional dT = 0.008 extension in the 4:1 series separate from its initial batch.
+2. The collision-study build configuration and thin launchers are prepared. They select `Simulation.cpp`, set the actual and recorded source amplitudes to 0.125, and build separate t=40 and t=88 executables. The only measurement addition is a console marker for the actual final step and time; the center, evolution, and output-sampling algorithms are unchanged.
+3. Build or rebuild both executables from Ubuntu/WSL with `bash build-collision-spacing-4-to-1.sh` in `Workdirectory`. This compiles only `SourceCode/SUNcSolver.cpp` using the working recipe below.
+4. The Grid A pilot was run with `OMP_NUM_THREADS=8 bash run-collision-spacing-4-to-1.sh A pilot`; its fresh output directory contains the manifest, log, resource report, and profiles. Unknown solver options are silently ignored, and `--help` is not a harmless help mode; verify the manifest and recorded values for future runs.
+5. The pilot review found finite outputs, 256-row profiles, incoming propagation toward the center and post-impact central fields. It recorded 501 steps, actual t=40.0799999999995, 26 seconds, and 268,188 KiB peak RSS. The main-run Gauss-law and profile checks are summarized above. Small Gauss-law residuals alone do not establish physical accuracy.
+6. The initial full-collision pair completed with `bash run-collision-spacing-4-to-1.sh A main` and `bash run-collision-spacing-4-to-1.sh B main`. The main executable uses `EndSimulationT = 88`. The optional `COLLISION_DT=0.008` Grid B extension remains separate from the initial batch.
 
 After the source configuration in step 2 is prepared, a local 2:1 coarse pilot can use:
 

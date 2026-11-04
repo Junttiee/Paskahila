@@ -2,13 +2,13 @@
 
 4 November 2026
 
-Status: Ready for implementation and pilot validation. This is the friend's two-grid collision series, with a_perp:a_z = 4:1. Read [PLANS.md](PLANS.md) for shared decisions and current code status. The separate [2:1 plan](plan-collision-spacing-2-to-1.md) has a different run matrix and time-step check.
+Status: The initial Grid A pilot and two-grid dT=0.08 batch used the pre-correction transverse source normalization and remain a historical baseline. The corrected Grid A pilot and Grid A/B t=88 main runs completed on 4 November 2026; see [PLANS.md](PLANS.md) for run records. The optional Grid B dT=0.008 extension remains pending. This is the friend's two-grid collision series, with a_perp:a_z = 4:1. The separate [2:1 plan](plan-collision-spacing-2-to-1.md) has a different run matrix and time-step check.
 
 ## Purpose and compatibility
 
-Compare two collision lattices with longitudinal spacing one quarter of the transverse spacing. Begin with dT = 0.08. Consider a later dT = 0.008 run on the finer of these two grids. Preserve the established numerical implementation so the results can be compared with the friend's existing data.
+Compare two collision lattices with longitudinal spacing one quarter of the transverse spacing. Begin with dT = 0.08. Consider a later dT = 0.008 run on the finer of these two grids. The grid and time-step schedule are unchanged by the source correction; pre-correction results remain a separate historical baseline.
 
-Use configuration-level changes and thin launch scripts first. Retain the evolution equations, source normalization, random-number generator and draw order, center formulas, boundary treatment, floating-point options and output column definitions. Any necessary source edits should be small, recorded and kept with the run manifest. A new initial-condition generator is not part of this initial plan.
+Retain the evolution equations, random-number generator and draw order, center formulas, boundary treatment, floating-point options and output column definitions. Use a cell-centered density convention for the transverse white-noise source: its per-site variance scales as 1/(a_x*a_y), so the Gaussian amplitude scales as 1/sqrt(a_x*a_y). The Poisson solver divides by physical p^2 and therefore consumes density, not cell-integrated charge. Any source edits should be small, recorded and kept with the run manifest. A new initial-condition generator is not part of this plan.
 
 ## Shared physical inputs
 
@@ -28,6 +28,8 @@ Use configuration-level changes and thin launch scripts first. Retain the evolut
 | Main-run endpoint | t_end = 88 from initialization |
 
 All lengths and momenta are in simulation units. Q_s is the source-strength convention of the current model. Q_s is held fixed in physical simulation units; it is not Q_s a_perp.
+
+For one color component and fixed z, the corrected source must satisfy `(a_x*a_y)*Var(rho_i) = (NucleusMultiplier*Q_s*T(z))^2`. Equivalently, after dividing out the nucleus multiplier and longitudinal profile, `(a_x*a_y)*Var(rho_i/[NucleusMultiplier*T(z)]) = Q_s^2` on both grids. Validate this source statistic before interpreting another full collision comparison.
 
 ## Requested grids
 
@@ -67,7 +69,7 @@ Report raw coordinates and aligned coordinates s = t − t_coll, ζ = z − z_c.
 
 ## Minimal preparation before running
 
-1. Select and rebuild the existing collision procedure. Keep separately identified left-only and right-only builds if background subtraction is needed.
+1. Select and rebuild the existing collision procedure. Keep separately identified left-only and right-only builds if background subtraction is needed. The corrected transverse source variance was checked on both grids before the corrected batch; the initial historical batch used the old normalization.
 2. Set the amplitude actually passed to the initializer to Q_s = 0.125. The current calls use `Qs0A_L` for both nuclei; `-QsA` alone does not set that value. For the symmetric case, a small configuration edit can make the actual and recorded source strengths agree. Pass m, Λ, widths, dimensions, spacings and dT explicitly using the existing options. Set the compile-time endpoint to 88.
 3. Keep the existing random sampling. At a fixed grid, reuse the seed and generation order for collision/control runs and for the optional smaller-time-step run. Across different N_x and N_y, the same seed does not produce the same physical realization. Start with a common seed for workflow checks, but use available event ensembles and uncertainty estimates before interpreting cross-grid differences as numerical error. Historical events can help if their actual settings match.
 4. Preserve the existing evolution stopping loop initially. Floating-point time accumulation can add a final step; record the actual count and compare common saved times rather than changing the algorithm solely to enforce the nominal count.

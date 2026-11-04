@@ -315,6 +315,8 @@ namespace Simulation {
 			 Timing::Reset();
 		  }
 	   }
+	   std::cerr.precision(OUTPUT_PRECISION);
+	   std::cerr << "#EVOLUTION_END_STEPS=" << Dynamics::tSteps << " TIME=" << Dynamics::Time() << std::endl;
 	   // CLOSE OUTPUT STREAMS //
 	   EnergyOutStream.close();
 	   
