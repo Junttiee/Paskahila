@@ -1,1 +1,3 @@
+# Preserve Linux line endings for the launcher on Windows checkouts.
+run-small.sh text eol=lf
 run-grid-b-seed1-dt0008-triple.sh text eol=lf
