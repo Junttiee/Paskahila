@@ -1,12 +1,13 @@
 # Collision 4:1 checkpoint handoff
 
-Updated 4 November 2026. This note is the continuation point for the corrected SU(2) 4:1 collision study.
+Updated 5 November 2026. This note records the corrected SU(2) 4:1 collision checkpoint. The more recent Grid B seed-1 timestep and matched-control work has its own [handoff](GRID_B_SEED1_HANDOFF.md).
 
 ## Current state
 
 - The source array is treated as a cell-centered transverse charge density. In `SourceCode/COLLIDINGOBJECTS/CollidingObjects.cpp`, the Gaussian amplitude scales as `Qs0A/sqrt(a_x*a_y)`. The Poisson solve uses physical lattice momenta and consumes density directly.
 - A GSL check of the raw transverse draws, before the longitudinal profile and smoothing, measured `(a_x*a_y)*Var(rho_i)` as 0.01581645 on Grid A and 0.01583379 on Grid B. The target is `Qs^2 = 0.015625` for `Qs=0.125`.
 - The corrected Grid A pilot and the corrected Grid A and Grid B main runs all completed with seed 1, eight threads, and `dT=0.08`. They finished at 40.08 and 88.08 simulation-time units, respectively. All output was finite and the Gauss-law residuals remained small.
+- Those checkpoint runs used the old profile schedule of 100 steps (8 simulation-time units at `dT=0.08`). New Grid B ensemble runs use EMT profiles every 0.8 simulation-time units: 10 steps at `dT=0.08` and 100 at `dT=0.008`. The bulk-energy and Gauss-law records retain their existing 20-step schedule.
 - The initial, pre-correction runs are preserved as historical baseline. Do not combine them with the corrected runs.
 
 ## Corrected results
@@ -54,8 +55,6 @@ python3 analyze-collision-spacing-4-to-1.py \
 
 ## Recommended continuation
 
-1. If the goal is to isolate collision-induced energy and stresses, run matched left-only and right-only controls for both grids using the same within-grid seeds, then subtract their tensors from the collision tensors.
-2. For a resolution-sensitivity estimate, run seed ensembles on both grids and report ensemble means and uncertainty. Do not treat the same seed number across grids as a matched source.
-3. The optional Grid B `dT=0.008` run remains pending as a separate time-step check.
+The Grid B timestep and induced-EMT plan covers eight matched seeds, two time steps, and collision/left-only/right-only runs for each seed-time-step pair, for 48 runs total. The complete seed-1 block at both time steps has now finished (6 runs); seeds 2–8 remain. See [the seed-1 handoff](GRID_B_SEED1_HANDOFF.md) for run identities, measured timestep differences, control subtraction results, and continuation instructions, and [the ensemble plan](plan-collision-spacing-4-to-1-grid-b-ensemble.md) for the full matrix and analysis rules.
 
 The detailed run record and shared study decisions are in [PLANS.md](PLANS.md) and [plan-collision-spacing-4-to-1.md](plan-collision-spacing-4-to-1.md).

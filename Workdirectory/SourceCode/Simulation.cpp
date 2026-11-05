@@ -211,6 +211,23 @@ namespace Simulation {
     
     void Evolve(DOUBLE MaxTime){
 
+	   // Keep EMT profile output at a fixed physical-time cadence across dT values.
+	   const DOUBLE ProfileCadenceT=0.8;
+	   if(Dynamics::dTStep<=0.0){
+		  std::cerr << "#ERROR: dT must be positive to set the EMT profile cadence." << std::endl;
+		  exit(1);
+	   }
+	   const DOUBLE ProfileIntervalStepsExact=ProfileCadenceT/Dynamics::dTStep;
+	   const INT ProfileIntervalSteps=static_cast<INT>(ProfileIntervalStepsExact+0.5);
+	   if(ProfileIntervalSteps<1 || fabs(ProfileIntervalSteps*Dynamics::dTStep-ProfileCadenceT)>1.0e-10){
+		  std::cerr << "#ERROR: dT=" << Dynamics::dTStep
+					<< " cannot represent the requested EMT profile cadence of "
+					<< ProfileCadenceT << " simulation-time units." << std::endl;
+		  exit(1);
+	   }
+	   std::cerr << "#EMT_PROFILE_CADENCE_T=" << ProfileCadenceT
+				 << " STEPS=" << ProfileIntervalSteps << std::endl;
+
 	   ///////////////////////
 	   // OUTPUT MANAGEMENT //
 	   ///////////////////////
@@ -280,8 +297,8 @@ namespace Simulation {
 			 Observables::GaussLaw::SaveViolation(StringManipulation::StringCast("GausCheck"));
 		  }
 		  
-		 //SAVE SU(Nc) GAUGE FIELD CONFIGURATIONS //
-		  if(Dynamics::tSteps%100==0){
+		 //SAVE ENERGY-MOMENTUM PROFILES AT A FIXED PHYSICAL-TIME CADENCE //
+		  if(Dynamics::tSteps%ProfileIntervalSteps==0){
 			 
 			  std::cerr << "#SAVING OBSERVABLES AT T=" << Dynamics::tSteps<< "  " << Dynamics::Time() << std::endl;
 			  Observables::EnergyMomentumTensor::CreateMap(StringManipulation::StringCast("EMTDynT",Dynamics::Time()));

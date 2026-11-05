@@ -2,7 +2,7 @@
 
 4 November 2026
 
-Status: The initial Grid A pilot and two-grid dT=0.08 batch used the pre-correction transverse source normalization and remain a historical baseline. The corrected Grid A pilot and Grid A/B t=88 main runs completed on 4 November 2026; see [PLANS.md](PLANS.md) for run records. The optional Grid B dT=0.008 extension remains pending. This is the friend's two-grid collision series, with a_perp:a_z = 4:1. The separate [2:1 plan](plan-collision-spacing-2-to-1.md) has a different run matrix and time-step check.
+Status: The initial Grid A pilot and two-grid dT=0.08 batch used the pre-correction transverse source normalization and remain a historical baseline. The corrected Grid A pilot and Grid A/B t=88 main runs completed on 4 November 2026; see [PLANS.md](PLANS.md) for run records. The dedicated follow-up for an eight-seed Grid B time-step and control ensemble is now specified in [the new plan](plan-collision-spacing-4-to-1-grid-b-ensemble.md); it supersedes the optional single Grid B dT=0.008 extension below. This remains the 4:1 series. The separate [2:1 plan](plan-collision-spacing-2-to-1.md) has a different run matrix.
 
 ## Purpose and compatibility
 
@@ -80,11 +80,11 @@ Use seed 1 for new pilots unless a documented historical comparison requires a d
 
 The initial scope is two full-collision runs at dT = 0.08. If collision-induced energy and stresses are required, add matched left-only and right-only controls at each grid, giving six runs. Form T_induced = T_collision − T_left − T_right component by component.
 
-The optional next run uses Grid B at dT = 0.008, with the same source realization, geometry and endpoint. It is a later extension, not part of the initial batch. This adds one collision run, or three runs when including its matched controls. It requires ten times as many evolution steps as the dT = 0.08 run. No dT = 0.04 run or third spatial grid is scheduled for this series.
+The original optional next run was a single Grid B dT = 0.008 collision, or three runs with matched controls. The new ensemble plan replaces that one-seed extension with eight seeds at both dT values and all three run types. No dT = 0.04 run or third spatial grid is scheduled for this series.
 
 ## Outputs and comparisons
 
-Keep the legacy output format and initially retain profiles every 100 steps. At dT = 0.08 this gives reported times t = 0, 8, …, 88; the dT = 0.008 run additionally has 0.8-unit sampling. Selecting every tenth smaller-step profile matches reported counters, not necessarily physical measurement times. Before a quantitative temporal comparison, establish the staggered-time mapping described in [PLANS.md](PLANS.md) and interpolate from sufficiently close samples; treat the initial frame separately. If finer sampling is needed near impact or for aligned comparisons, make only an explicit output-cadence adjustment and record it. Interpolation across an eight-unit gap should not support a precision claim near impact.
+The corrected checkpoint outputs retained the legacy every-100-step cadence. For the new ensemble, EMT profiles are written every 0.8 simulation-time units at both time steps: 10 steps for dT = 0.08 and 100 steps for dT = 0.008. The runner manifests record this schedule. Before a quantitative temporal comparison, establish the staggered-time mapping described in [PLANS.md](PLANS.md), use matched physical times and treat the initial frame separately.
 
 Compare transverse-averaged T00, T0z, transverse pressure (TXX + TYY)/2 and longitudinal pressure TZZ. Convert z indices to physical coordinates. Normalize the bulk site sum as mean density T00_bulk/(N_x N_y N_z), or integrated energy (a_x a_y a_z) T00_bulk with the current scale factor of one. Record maximum and RMS Gauss-law residuals, initial differences, resource costs and statistical uncertainty. Two spatial levels cannot establish convergence order; the optional time-step run tests sensitivity for its chosen grid and realization.
 
@@ -94,4 +94,4 @@ A useful comparison with the [2:1 collision plan](plan-collision-spacing-2-to-1.
 
 Before combining new and old results, record the source version, executable/build settings, actual source amplitude, seed, dimensions, spacings, widths, cutoffs, dT, endpoint, center rule, boundary treatment and output definitions. Existing info-file labels alone may not identify the amplitude actually used. Keep any historical configuration differences explicit.
 
-Deliver the run manifests, initial and evolved profile plots, pressure histories, resolution and optional time-step differences, diagnostics and measured runtimes. This plan specifies the implementation starting point; numerical adequacy and historical-data compatibility must be assessed from the pilot and available metadata. Event counts, final accuracy targets and the optional smaller-time-step extension remain later research decisions.
+Deliver the run manifests, initial and evolved profile plots, pressure histories, paired time-step and collision-minus-controls differences, ensemble uncertainty summaries, diagnostics and measured runtimes. The Grid B seed count and time steps are specified in the follow-up plan; numerical adequacy and historical-data compatibility must still be assessed from results and metadata.

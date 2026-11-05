@@ -1,6 +1,6 @@
 # Study plans and implementation handoff
 
-4 November 2026
+5 November 2026
 
 ## Start here
 
@@ -9,14 +9,13 @@ The goal is a collision discretization and resolution-sensitivity demonstration 
 | Document | Role and scope |
 |---|---|
 | [Collision plan with 2 to 1 spacing](plan-collision-spacing-2-to-1.md) | Active local series: 64 × 64 × 256, 96 × 96 × 384, 128 × 128 × 512; dT = 0.08; finest-grid dT = 0.04 check |
-| [Collision plan with 4 to 1 spacing](plan-collision-spacing-4-to-1.md) | Friend's series: 32 × 32 × 256 and 64 × 64 × 512; dT = 0.08; optional later finer-grid dT = 0.008 run |
+| [Collision plan with 4 to 1 spacing](plan-collision-spacing-4-to-1.md) | Corrected base series: 32 × 32 × 256 and 64 × 64 × 512 at dT = 0.08; Grid B ensemble follow-up is listed separately |
+| [Grid B timestep and induced-EMT ensemble plan](plan-collision-spacing-4-to-1-grid-b-ensemble.md) | Follow-up: Grid B, 8 seeds, dT = 0.08 and 0.008, collision plus matched left-only/right-only controls; 48 runs |
 | [Single nucleus reference](plan-single-nucleus-reference.md) | Supporting diagnostics and historical study outline; not a required standalone campaign |
 
 The ratio in each collision filename is a_perp:a_z. Both series keep the physical box (128, 128, 256). Do not add a 128 × 128 × 1024 run to the friend's series. Keep each series' time-step check distinct.
 
-The current corrected 4:1 checkpoint, local output paths, reproducible commands and next steps are summarized in [COLLISION_4_TO_1_HANDOFF.md](COLLISION_4_TO_1_HANDOFF.md).
-
-The current corrected 4:1 checkpoint, local output paths, reproducible commands and next steps are summarized in [COLLISION_4_TO_1_HANDOFF.md](COLLISION_4_TO_1_HANDOFF.md).
+The corrected 4:1 checkpoint is summarized in [COLLISION_4_TO_1_HANDOFF.md](COLLISION_4_TO_1_HANDOFF.md). The seed-1 Grid B timestep and matched-control pilot is complete at both time steps; its six-run record, measured comparison, local output paths and continuation instructions are in [GRID_B_SEED1_HANDOFF.md](GRID_B_SEED1_HANDOFF.md). The remaining ensemble work is 42 runs for seeds 2–8.
 
 ## Shared decisions
 
@@ -24,7 +23,7 @@ The current corrected 4:1 checkpoint, local output paths, reproducible commands 
 - For both nuclei use Q_s = 0.125, Q_s σ_z = 0.5, σ_z = 4, m = 0.125 and Λ = 0.625 in simulation units. Q_s is the input source-strength convention; do not reinterpret 0.125 as Q_s a_perp or assign GeV/fm units without another specification.
 - Retain i_L = int(0.85 N_z/2 − 1) and i_R = int(1.15 N_z/2 − 1), including truncation. Record physical positions, nominal crossing time and midpoint. Use raw and appropriately sampled aligned comparisons; a fixed-center rewrite is outside the current implementation scope.
 - Keep the legacy generator. Identical seed and draw order match sources at the same transverse grid for collision/control and time-step comparisons. The same seed across different transverse meshes does not match physical realizations. A new Fourier-mode generator is not required or scheduled.
-- Default to seed 1 for new pilots. Use another seed when explicitly matching documented historical data. Record the seed in every run; ensemble seed lists and counts will be chosen later.
+- Default to seed 1 for new pilots. Use another seed when explicitly matching documented historical data. Record the seed in every run. The new Grid B follow-up uses seeds 1–8, paired across time steps and run types as specified in its plan.
 - Initially use eight CPU threads on the local i7-13700K. Run configurations sequentially. Benchmark the friend's own resources before choosing its fixed thread count.
 - All full study runs, including the single-nucleus reference, use t_end = 88 from initialization. This gives Q_s t_end = 11 and nominally 1,100 steps at dT = 0.08. For collisions, Q_s times the elapsed time after nominal impact ranges from 8.5625 to 8.625 across these grids. The short coarse collision pilot still ends at t = 40, nominally 500 steps; its first 20–50 steps provide timing data.
 - Collision fields are the first target. To isolate collision-induced T00, T0z and pressures, reuse matched left-only and right-only controls and subtract their tensors. This is supporting collision work, not a separate convergence campaign that must finish first.
@@ -39,11 +38,11 @@ The collision-study build path in `SourceCode/LATTICE/Parameters.cpp` fixes `Qs0
 
 A GSL check using seed 1, three color components per site, and raw transverse source draws before the longitudinal profile and smoothing measured `(a_x*a_y)*Var(rho_i)` = 0.0158164474 for Grid A (3,072 samples) and 0.0158337893 for Grid B (12,288 samples), against the target `Qs^2 = 0.015625` on both. Applying the old `sqrt(a_x*a_y)` factor to those same draws gives 4.04901054 and 0.253340629, respectively, against targets 4 and 0.25. Both executables were rebuilt with the corrected source, then the corrected pilot and two main runs completed as recorded below.
 
-Existing runtime options include dimensions, spacings, `-dT`, both width inputs, cutoffs, seed, density multipliers and output directory. There is no endpoint option. The build script sets `EndSimulationT` separately for the pilot and main executables. The stopping loop is unchanged; a console marker reports actual final steps and time so the runner can record them. Floating-point accumulation can produce an extra final step, so compare common saved times. The targeted additional output frames described in the 2:1 plan are not implemented yet.
+Existing runtime options include dimensions, spacings, `-dT`, both width inputs, cutoffs, seed, density multipliers and output directory. There is no endpoint option. The build script sets `EndSimulationT` separately for the pilot and main executables. The stopping loop is unchanged; a console marker reports actual final steps and time so the runner can record them. Floating-point accumulation can produce an extra final step, so compare common saved times. The 4:1 EMT profile writer now targets a physical cadence of 0.8 units (10 steps at dT=0.08; 100 at dT=0.008) and rejects time steps that cannot represent it within tolerance. Existing checkpoint outputs were produced before this cadence change.
 
 CPU threading is already implemented and tested. `run-small.sh` honors `OMP_NUM_THREADS`; the solver uses OpenMP and threaded FFTW. A 100-step coarse-grid performance sweep took 200.9 seconds with one thread, 33.4 with eight and 30.4 with sixteen. Numerical comparisons passed. Results are in `runs/thread-benchmark-2c2gsgcw/`. These runs used the current short-test physics and dT = 0.008, not the study configuration.
 
-`run-small.sh` still passes the original 16 × 16 × 256 smoke-test arguments. `benchmark-threads.py` expects source ending time 0.8. Use `build-collision-spacing-4-to-1.sh` to produce separate t=40 and t=88 collision executables, then `run-collision-spacing-4-to-1.sh A pilot`, `... A main`, and `... B main` to create fresh runs with manifests. The runner defaults to seed 1, eight threads, and dT=0.08; the optional later Grid B time-step run is selected with `COLLISION_DT=0.008`. Existing binaries and historical output must not be assumed to match the plans.
+`run-small.sh` still passes the original 16 × 16 × 256 smoke-test arguments. `benchmark-threads.py` expects source ending time 0.8. Use `build-collision-spacing-4-to-1.sh` to produce separate t=40 and t=88 collision executables, then `run-collision-spacing-4-to-1.sh A pilot`, `... A main`, and `... B main` to create fresh runs with manifests. The runner defaults to seed 1, eight threads, and dT=0.08; set `COLLISION_DT=0.008` for the fine-step case. Grid B main also accepts `collision`, `left-only`, and `right-only` run types; the eight-seed, two-time-step matrix is specified in [the new ensemble plan](plan-collision-spacing-4-to-1-grid-b-ensemble.md). Existing binaries and historical output must not be assumed to match the plans.
 
 ### Completed 4:1 initial batch
 
@@ -115,8 +114,8 @@ Retain a manifest with the plan name, procedure, actual source parameters, dimen
 
 The longitudinal EMT columns are z_index, T00, TXX, TYY, TZZ, T0X, T0Y, T0Z, followed by six alternative `mod` definitions. Use the first definitions consistently unless a separate comparison is intended. Bulk energy has a six-column initial row and four-column subsequent rows; parse these separately. Bulk T00 is a site sum, so normalize by site count for mean density or multiply by cell volume for integrated energy. The profile already averages over the transverse grid. Convert z_index to physical z.
 
-Before quantifying time-step differences, trace and document measurement-time staggering in the unchanged code. `DYNAMICS/SUNcDynamics.cpp` saves `UOld` between its two half link updates and increments the reported time after the second half update. `OBSERVABLES/EnergyMomentumTensor.cpp` computes the main profile from `UOld` and `E`, while the initializer first constructs links one step apart to obtain the electric fields. Matching filenames/counters across different dT therefore does not by itself establish identical physical measurement times, and the initial frame needs separate treatment. Preserve the numerical scheme and raw labels; establish the physical-time mapping in analysis and use sufficiently close bracketing samples for interpolation. Bulk diagnostics have their own staggering and must not automatically inherit the profile convention.
+The EMT profile writer uses `UOld` and `E`: after an evolution step, `UOld` is saved at the midpoint between link updates, so the evolved profile's physical measurement time is its reported time plus `dT/2`. The initial frame mixes initial links with an electric field at `dT/2` and is handled separately. The seed-1 comparison used 109 common physical times from `1.604` through `88.004`, linearly interpolating coarse profiles between 0.8-unit cadence brackets. Retain raw reported timestamps alongside any corrected physical-time estimate. Bulk diagnostics have their own staggering and must not automatically inherit the profile convention.
 
 The first stage is complete when a correctly configured coarse collision has reached t = 40 and its manifest, profiles, diagnostic histories and measured costs have been reviewed. The full study additionally requires the main grid comparisons and its selected temporal check, plus matched controls when reporting the induced tensor.
 
-Event counts, a final quantitative accuracy target, the analysis region, historical-data compatibility and the friend's optional smaller-step run remain research decisions. They do not prevent implementing the specified pilot. Report one-seed, different-transverse-grid differences as combined stochastic and resolution sensitivity until uncertainty is controlled. Removing draft status from these plans does not certify the simulation or establish convergence.
+The Grid B follow-up specifies eight seeds, two time steps and matched single-nucleus controls. The seed-1 block at both time steps is complete; the remaining 42 runs and ensemble summaries are pending. Report one-seed, different-transverse-grid differences as combined stochastic and resolution sensitivity until uncertainty is controlled. Completing the pilot does not establish convergence or a universal physical prediction.
