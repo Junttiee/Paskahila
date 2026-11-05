@@ -1,6 +1,6 @@
 # Collision 4:1 checkpoint handoff
 
-Updated 4 November 2026. This note is the continuation point for the corrected SU(2) 4:1 collision study.
+Updated 5 November 2026. This note records the corrected SU(2) 4:1 collision checkpoint. The more recent Grid B seed-1 timestep and matched-control work has its own [handoff](GRID_B_SEED1_HANDOFF.md).
 
 ## Current state
 
@@ -55,6 +55,6 @@ python3 analyze-collision-spacing-4-to-1.py \
 
 ## Recommended continuation
 
-The next study is specified in [the Grid B timestep and induced-EMT ensemble plan](plan-collision-spacing-4-to-1-grid-b-ensemble.md): eight matched seeds, two time steps, and collision/left-only/right-only runs for each seed-time-step pair, for 48 runs total. That plan records the cadence, launcher modes, resource estimate, matching logic and analysis outputs. No ensemble run has started.
+The Grid B timestep and induced-EMT plan covers eight matched seeds, two time steps, and collision/left-only/right-only runs for each seed-time-step pair, for 48 runs total. The complete seed-1 block at both time steps has now finished (6 runs); seeds 2–8 remain. See [the seed-1 handoff](GRID_B_SEED1_HANDOFF.md) for run identities, measured timestep differences, control subtraction results, and continuation instructions, and [the ensemble plan](plan-collision-spacing-4-to-1-grid-b-ensemble.md) for the full matrix and analysis rules.
 
 The detailed run record and shared study decisions are in [PLANS.md](PLANS.md) and [plan-collision-spacing-4-to-1.md](plan-collision-spacing-4-to-1.md).

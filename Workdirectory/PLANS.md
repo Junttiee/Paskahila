@@ -1,6 +1,6 @@
 # Study plans and implementation handoff
 
-4 November 2026
+5 November 2026
 
 ## Start here
 
@@ -15,7 +15,7 @@ The goal is a collision discretization and resolution-sensitivity demonstration 
 
 The ratio in each collision filename is a_perp:a_z. Both series keep the physical box (128, 128, 256). Do not add a 128 × 128 × 1024 run to the friend's series. Keep each series' time-step check distinct.
 
-The current corrected 4:1 checkpoint, local output paths, reproducible commands and next steps are summarized in [COLLISION_4_TO_1_HANDOFF.md](COLLISION_4_TO_1_HANDOFF.md).
+The corrected 4:1 checkpoint is summarized in [COLLISION_4_TO_1_HANDOFF.md](COLLISION_4_TO_1_HANDOFF.md). The seed-1 Grid B timestep and matched-control pilot is complete at both time steps; its six-run record, measured comparison, local output paths and continuation instructions are in [GRID_B_SEED1_HANDOFF.md](GRID_B_SEED1_HANDOFF.md). The remaining ensemble work is 42 runs for seeds 2–8.
 
 ## Shared decisions
 
@@ -114,8 +114,8 @@ Retain a manifest with the plan name, procedure, actual source parameters, dimen
 
 The longitudinal EMT columns are z_index, T00, TXX, TYY, TZZ, T0X, T0Y, T0Z, followed by six alternative `mod` definitions. Use the first definitions consistently unless a separate comparison is intended. Bulk energy has a six-column initial row and four-column subsequent rows; parse these separately. Bulk T00 is a site sum, so normalize by site count for mean density or multiply by cell volume for integrated energy. The profile already averages over the transverse grid. Convert z_index to physical z.
 
-Before quantifying time-step differences, trace and document measurement-time staggering in the unchanged code. `DYNAMICS/SUNcDynamics.cpp` saves `UOld` between its two half link updates and increments the reported time after the second half update. `OBSERVABLES/EnergyMomentumTensor.cpp` computes the main profile from `UOld` and `E`, while the initializer first constructs links one step apart to obtain the electric fields. Matching filenames/counters across different dT therefore does not by itself establish identical physical measurement times, and the initial frame needs separate treatment. Preserve the numerical scheme and raw labels; establish the physical-time mapping in analysis and use sufficiently close bracketing samples for interpolation. Bulk diagnostics have their own staggering and must not automatically inherit the profile convention.
+The EMT profile writer uses `UOld` and `E`: after an evolution step, `UOld` is saved at the midpoint between link updates, so the evolved profile's physical measurement time is its reported time plus `dT/2`. The initial frame mixes initial links with an electric field at `dT/2` and is handled separately. The seed-1 comparison used 109 common physical times from `1.604` through `88.004`, linearly interpolating coarse profiles between 0.8-unit cadence brackets. Retain raw reported timestamps alongside any corrected physical-time estimate. Bulk diagnostics have their own staggering and must not automatically inherit the profile convention.
 
 The first stage is complete when a correctly configured coarse collision has reached t = 40 and its manifest, profiles, diagnostic histories and measured costs have been reviewed. The full study additionally requires the main grid comparisons and its selected temporal check, plus matched controls when reporting the induced tensor.
 
-The Grid B follow-up now specifies eight seeds, two time steps and matched single-nucleus controls. Its statistical summaries, physical-time mapping and interpretation remain analysis decisions to document as work proceeds. Report one-seed, different-transverse-grid differences as combined stochastic and resolution sensitivity until uncertainty is controlled. Removing draft status from these plans does not certify the simulation or establish convergence.
+The Grid B follow-up specifies eight seeds, two time steps and matched single-nucleus controls. The seed-1 block at both time steps is complete; the remaining 42 runs and ensemble summaries are pending. Report one-seed, different-transverse-grid differences as combined stochastic and resolution sensitivity until uncertainty is controlled. Completing the pilot does not establish convergence or a universal physical prediction.

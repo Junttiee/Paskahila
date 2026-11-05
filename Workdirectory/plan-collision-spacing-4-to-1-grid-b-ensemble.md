@@ -1,8 +1,8 @@
 # Grid B timestep and collision-induced EMT ensemble plan
 
-4 November 2026
+5 November 2026
 
-Status: Drafted; no ensemble runs have started. This follow-up studies the corrected 4:1 Grid B at two time steps and uses matched single-nucleus controls to define the collision-induced energy-momentum tensor. The completed one-seed, two-grid checkpoint is summarized in [COLLISION_4_TO_1_HANDOFF.md](COLLISION_4_TO_1_HANDOFF.md). Shared implementation history and the source-normalization check are in [PLANS.md](PLANS.md).
+Status: Seed 1 pilot block complete (6 of 48 runs); seeds 2–8 remain. This follow-up studies the corrected 4:1 Grid B at two time steps and uses matched single-nucleus controls to define the collision-induced energy-momentum tensor. The seed-1 results and outputs are summarized in [GRID_B_SEED1_HANDOFF.md](GRID_B_SEED1_HANDOFF.md); the earlier one-seed, two-grid checkpoint is in [COLLISION_4_TO_1_HANDOFF.md](COLLISION_4_TO_1_HANDOFF.md). Shared implementation history and the source-normalization check are in [PLANS.md](PLANS.md).
 
 ## Questions and estimands
 
@@ -60,9 +60,9 @@ Repeat for seeds 1 through 8, then repeat the same triples with `COLLISION_DT=0.
 
 Save the EMT profile every `0.8` simulation-time units: every 10 steps at `dT=0.08`, and every 100 steps at `dT=0.008`. The initial profile at `t=0` is retained. Both resolutions should therefore provide the same nominal profile times from `t=0` through `t=88`, 111 profiles per run or 5,328 profiles in the campaign. The existing 20-step bulk-energy and Gauss-law outputs keep their step-based schedule; they are diagnostics, not the EMT analysis series.
 
-The evolution loop can take one extra final step because of floating-point accumulation. Record the actual marker from each log; the primary profile comparison uses the common saved frames through nominal `t=88`, not an assumption about the final loop time. Before computing time-step differences, use the measurement-time staggering described in [PLANS.md](PLANS.md). Match physical times using that mapping, treat `t=0` separately and interpolate only from bracketing frames at the common 0.8-unit cadence. Retain raw reported timestamps alongside any corrected physical-time estimate.
+The evolution loop can take one extra final step because of floating-point accumulation. Record the actual marker from each log; the primary profile comparison uses the common saved frames through nominal `t=88`, not an assumption about the final loop time. After an evolution step, the EMT profile's physical measurement time is its reported time plus `dT/2`; the initial frame mixes times and is treated separately. The seed-1 comparison used 109 common physical times from `1.604` through `88.004`, linearly interpolating coarse profiles between 0.8-unit cadence brackets. Retain raw reported timestamps alongside any corrected physical-time estimate.
 
-One Grid B `dT=0.08` corrected run took 561 seconds with the previous 100-step profile cadence and used about 2.1 GiB peak RSS. A step-count-only projection gives about 41 hours for 48 runs at the same eight-thread setting: 24 coarse runs at roughly 9m21s each and 24 fine runs at roughly ten times that duration. This is a baseline estimate; increasing coarse-run profile writes from 12 to 111 per run adds output work that has not yet been benchmarked. Use the first seed-1 coarse collision run to measure the new cadence overhead before treating the total as a firm schedule. At 145,595 bytes for the existing Grid B initial profile, EMT text output alone is on the order of 0.75 GB for this matrix.
+The seed-1 block with the planned 111-profile cadence took 38m23s–38m36s per run at `dT=0.08` and 1h32m31s–1h33m10s per run at `dT=0.008`, with eight threads and about 2.08 GiB peak RSS. Extrapolating the observed averages gives roughly 52.5 hours for all 48 runs, or 46 hours for the 42 remaining. Later seeds may differ, so this is a planning estimate. At 145,595 bytes for the initial Grid B profile, EMT text output alone is on the order of 0.75 GB for the full matrix.
 
 ## Analysis
 
@@ -75,8 +75,8 @@ Review the initial profiles and Gauss-law residuals for each run, check all outp
 ## Execution gates and deliverables
 
 1. Rebuild the Grid B collision-study executable from the confirmed corrected source, then inspect its build record and source hashes.
-2. Run the seed-1, `dT=0.08` collision case first. Confirm a 0.8-unit profile cadence, expected multiplier pair, finite profiles and acceptable initial diagnostics; record its actual runtime before scheduling the remainder.
+2. **Complete for seed 1:** the `dT=0.08` and `dT=0.008` collision/left-only/right-only triples passed the cadence, multiplier, finite-output and completion checks. Their measured runtimes and timestep comparison are in [the seed-1 handoff](GRID_B_SEED1_HANDOFF.md).
 3. Complete and review each matched three-run group before proceeding to the next seed/time step. Resume only from manifest-confirmed completed runs; never reuse a run directory.
 4. Deliver a 48-run manifest index, profile-time audit, paired raw and aligned CSVs, ensemble plots and uncertainty summaries, plus an updated handoff document.
 
-No run should be launched until the source-normalization and output-cadence gates are satisfied. This document is a plan only; it does not authorize starting the ensemble.
+The source-normalization and output-cadence gates passed for the seed-1 pilot block. The other seven seeds have not been run; continue with them only as a separately scheduled campaign.
