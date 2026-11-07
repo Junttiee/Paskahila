@@ -53,8 +53,8 @@ python3 analyze-collision-spacing-4-to-1.py \
 
 `runs/` is ignored by Git. The manifests, raw data, CSV and SVG plots are available in the current workspace but are not included in the PR; this tracked handoff and `PLANS.md` preserve the key results and commands.
 
-## Recommended continuation
+## Completed Grid B ensemble
 
-The Grid B timestep and induced-EMT plan covers eight matched seeds, two time steps, and collision/left-only/right-only runs for each seed-time-step pair, for 48 runs total. The complete seed-1 block at both time steps has now finished (6 runs); seeds 2–8 remain. See [the seed-1 handoff](GRID_B_SEED1_HANDOFF.md) for run identities, measured timestep differences, control subtraction results, and continuation instructions, and [the ensemble plan](plan-collision-spacing-4-to-1-grid-b-ensemble.md) for the full matrix and analysis rules.
+The Grid B timestep and induced-EMT ensemble completed all 48 runs across eight matched seeds, two time steps, and collision/left-only/right-only triples. The [ensemble handoff](GRID_B_ENSEMBLE_HANDOFF.md) records the run audit, paired timestep differences, control subtraction, and seed uncertainty.
 
 The detailed run record and shared study decisions are in [PLANS.md](PLANS.md) and [plan-collision-spacing-4-to-1.md](plan-collision-spacing-4-to-1.md).

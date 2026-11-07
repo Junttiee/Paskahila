@@ -1,10 +1,10 @@
 # Grid B seed 1 handoff: timestep and control pilot
 
-Updated 5 November 2026. This is the continuation point for the Grid B timestep and collision-induced EMT ensemble in [the plan](plan-collision-spacing-4-to-1-grid-b-ensemble.md).
+Pilot record from 5 November 2026. The completed Grid B timestep and collision-induced EMT ensemble has a separate [handoff](GRID_B_ENSEMBLE_HANDOFF.md).
 
 ## Status
 
-The complete seed 1 block has finished: collision, left-only, and right-only at both `dT=0.08` and `dT=0.008`. All six runs used the corrected 4:1 collision-study source, seed 1, eight threads, and a 0.8-unit EMT profile cadence. They completed successfully, produced finite numeric outputs, and have matching source and build hashes. This is 6 of 48 planned runs; the 42 runs for seeds 2–8 remain.
+The seed-1 block contains collision, left-only, and right-only runs at both `dT=0.08` and `dT=0.008`. All six runs used the corrected 4:1 collision-study source, seed 1, eight threads, and a 0.8-unit EMT profile cadence. They completed successfully, produced finite numeric outputs, and have matching source and build hashes. These six runs are included in the 48-run ensemble.
 
 The raw output directories and sequence log are under the local, Git-ignored `Workdirectory/runs/` directory. The tracked record below preserves the run identities and key checks; the raw profiles are not part of this PR.
 
@@ -64,6 +64,6 @@ done
 
 The fine matched triple runner is [run-grid-b-seed1-dt0008-triple.sh](run-grid-b-seed1-dt0008-triple.sh). It checks the build record and source/binary hashes, creates a fresh sequence directory, runs the three modes in order, verifies each manifest and cadence, and stops if a check fails. The seed 1 fine sequence has already completed; do not rerun it just to continue the campaign.
 
-For the remaining seeds, follow the matching and analysis rules in the ensemble plan. Each seed/time-step block must use the same seed for collision and both controls; pair each seed across the two time steps. Run sequentially at eight threads. The six observed run durations project to roughly 52.5 hours for all 48 runs, or about 46 hours for the 42 remaining, assuming later seeds have similar runtimes. Each run peaked near 2.08 GiB RSS. Treat this as a planning estimate, not a guarantee.
+The [ensemble queue](run-grid-b-ensemble.py) completed seeds 2–8 with the seed-1 build. The [ensemble handoff](GRID_B_ENSEMBLE_HANDOFF.md) records the measured runtimes, analysis methods, and results.
 
-The detailed manifests, profile files, Gauss-law histories, and sequence logs remain in the local `runs/` tree. See [PLANS.md](PLANS.md) for the broader study context and [the ensemble plan](plan-collision-spacing-4-to-1-grid-b-ensemble.md) for the remaining matrix and aggregation requirements.
+The detailed manifests, profile files, Gauss-law histories, and sequence logs are in the local `runs/` tree. See [PLANS.md](PLANS.md) for the broader study context and [the ensemble plan](plan-collision-spacing-4-to-1-grid-b-ensemble.md) for the run matrix and aggregation rules.
