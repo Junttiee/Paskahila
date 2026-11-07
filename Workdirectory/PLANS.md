@@ -10,13 +10,13 @@ The goal is a collision discretization and resolution-sensitivity demonstration 
 |---|---|
 | [Collision plan with 2 to 1 spacing](plan-collision-spacing-2-to-1.md) | Active local series: 64 × 64 × 256, 96 × 96 × 384, 128 × 128 × 512; dT = 0.08; finest-grid dT = 0.04 check |
 | [Collision plan with 4 to 1 spacing](plan-collision-spacing-4-to-1.md) | Corrected base series: 32 × 32 × 256 and 64 × 64 × 512 at dT = 0.08; Grid B ensemble follow-up is listed separately |
-| [Grid B timestep and induced-EMT ensemble plan](plan-collision-spacing-4-to-1-grid-b-ensemble.md) | Follow-up: Grid B, 8 seeds, dT = 0.08 and 0.008, collision plus matched left-only/right-only controls; 48 runs |
+| [Grid B timestep and induced-EMT ensemble plan](plan-collision-spacing-4-to-1-grid-b-ensemble.md) | Completed 48-run Grid B study with eight seeds, dT = 0.08 and 0.008, and matched single-nucleus controls |
 | [Roihu and seed 1 production handoff](ROIHU_REPRODUCTION.md#seed-1-production-handoff) | Historical comparison complete through the full-grid pilot. The single production-grid fork run through `t=88` and its Grid B comparison are deferred. |
 | [Single nucleus reference](plan-single-nucleus-reference.md) | Supporting diagnostics and historical study outline; not a required standalone campaign |
 
 The ratio in each collision filename is a_perp:a_z. Both series keep the physical box (128, 128, 256). Do not add a 128 × 128 × 1024 run to the friend's series. Keep each series' time-step check distinct.
 
-The corrected 4:1 checkpoint is summarized in [COLLISION_4_TO_1_HANDOFF.md](COLLISION_4_TO_1_HANDOFF.md). The seed-1 Grid B timestep and matched-control pilot is complete at both time steps; its six-run record, measured comparison, local output paths and continuation instructions are in [GRID_B_SEED1_HANDOFF.md](GRID_B_SEED1_HANDOFF.md). The remaining ensemble work is 42 runs for seeds 2–8.
+The corrected 4:1 checkpoint is summarized in [COLLISION_4_TO_1_HANDOFF.md](COLLISION_4_TO_1_HANDOFF.md). The full Grid B campaign and paired analysis are recorded in [GRID_B_ENSEMBLE_HANDOFF.md](GRID_B_ENSEMBLE_HANDOFF.md). The six pilot runs have a separate [seed-1 record](GRID_B_SEED1_HANDOFF.md).
 
 ## Shared decisions
 
@@ -75,7 +75,7 @@ All runs completed with exit status 0 and finite output. The pilot has six 256-r
 
 Outputs are under `runs/collision-spacing-4-to-1-A-pilot-t40-aTVfkb/`, `runs/collision-spacing-4-to-1-A-main-t88-6gwTqr/`, and `runs/collision-spacing-4-to-1-B-main-t88-asxl1e/`.
 
-The corrected pair was analyzed at 12 reported profile times in `runs/collision-spacing-4-to-1-corrected-analysis/`. The bulk site sums multiplied by cell volume give integrated energy 10.5014 (A) and 9.45867 (B) at t=0, a B/A ratio of 0.9007; at t=88 the ratio is 0.8863. This is far closer than the pre-correction initial ratio of 17.665. In aligned longitudinal profiles, the Grid B minus Grid A RMS difference relative to Grid A at t=24/40/88 was 10.9/11.6/14.2% for T00, 28.7/28.2/29.1% for T0Z, 6.4/17.9/9.4% for transverse pressure P_T, and 10.9/11.6/14.2% for longitudinal pressure P_L. This is a one-seed sensitivity comparison: different transverse meshes do not yield matched physical realizations, so it does not establish convergence. Matched single-nucleus controls remain pending.
+The corrected pair was analyzed at 12 reported profile times in `runs/collision-spacing-4-to-1-corrected-analysis/`. The bulk site sums multiplied by cell volume give integrated energy 10.5014 (A) and 9.45867 (B) at t=0, a B/A ratio of 0.9007; at t=88 the ratio is 0.8863. This is far closer than the pre-correction initial ratio of 17.665. In aligned longitudinal profiles, the Grid B minus Grid A RMS difference relative to Grid A at t=24/40/88 was 10.9/11.6/14.2% for T00, 28.7/28.2/29.1% for T0Z, 6.4/17.9/9.4% for transverse pressure P_T, and 10.9/11.6/14.2% for longitudinal pressure P_L. This is a one-seed sensitivity comparison: different transverse meshes do not yield matched physical realizations, so it does not establish convergence. The later Grid B ensemble provides matched controls on Grid B.
 
 ## First implementation steps
 
@@ -119,4 +119,4 @@ The EMT profile writer uses `UOld` and `E`: after an evolution step, `UOld` is s
 
 The first stage is complete when a correctly configured coarse collision has reached t = 40 and its manifest, profiles, diagnostic histories and measured costs have been reviewed. The full study additionally requires the main grid comparisons and its selected temporal check, plus matched controls when reporting the induced tensor.
 
-The Grid B follow-up specifies eight seeds, two time steps and matched single-nucleus controls. The seed-1 block at both time steps is complete; the remaining 42 runs and ensemble summaries are pending. Report one-seed, different-transverse-grid differences as combined stochastic and resolution sensitivity until uncertainty is controlled. Completing the pilot does not establish convergence or a universal physical prediction.
+The completed Grid B ensemble quantifies paired timestep differences and induced EMT uncertainty on the fixed Grid B mesh. Report one-seed comparisons between different transverse meshes as combined stochastic and spatial-resolution sensitivity. [Grid B results and analysis files](GRID_B_ENSEMBLE_HANDOFF.md)

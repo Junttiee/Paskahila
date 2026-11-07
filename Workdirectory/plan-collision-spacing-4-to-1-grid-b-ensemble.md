@@ -2,7 +2,7 @@
 
 5 November 2026
 
-Status: Seed 1 pilot block complete (6 of 48 runs); seeds 2–8 remain. This follow-up studies the corrected 4:1 Grid B at two time steps and uses matched single-nucleus controls to define the collision-induced energy-momentum tensor. The seed-1 results and outputs are summarized in [GRID_B_SEED1_HANDOFF.md](GRID_B_SEED1_HANDOFF.md); the earlier one-seed, two-grid checkpoint is in [COLLISION_4_TO_1_HANDOFF.md](COLLISION_4_TO_1_HANDOFF.md). Shared implementation history and the source-normalization check are in [PLANS.md](PLANS.md).
+All 48 runs and the paired analysis are complete as of 7 November 2026. Results and output paths are in [GRID_B_ENSEMBLE_HANDOFF.md](GRID_B_ENSEMBLE_HANDOFF.md). This follow-up studies the corrected 4:1 Grid B at two time steps and uses matched single-nucleus controls to define the collision-induced energy-momentum tensor. The [seed-1 pilot](GRID_B_SEED1_HANDOFF.md), [earlier two-grid checkpoint](COLLISION_4_TO_1_HANDOFF.md), and [shared study plan](PLANS.md) record the implementation history.
 
 ## Questions and estimands
 
@@ -44,7 +44,7 @@ Run all combinations below for every seed:
 | `0.008` | 8 | 8 | 8 | 24 |
 | **Total** | **16** | **16** | **16** | **48** |
 
-For each `(seed,dT)` triple, use exactly the same seed and grid in all three run types. Set density multipliers to `(1,1)` for collision, `(1,0)` for left-only, and `(0,1)` for right-only. The existing initializer draws both transverse source arrays in the same order even when one multiplier is zero, so each active nucleus retains the corresponding realization from the collision run. The initialization is independent of `dT`, so reusing a seed also pairs the source realization across the two time steps. Preserve this code path and verify the multipliers in each manifest.
+For each `(seed,dT)` triple, use exactly the same seed and grid in all three run types. Set density multipliers to `(1,1)` for collision, `(1,0)` for left-only, and `(0,1)` for right-only. The existing initializer draws both transverse source arrays in the same order even when one multiplier is zero, so each active nucleus retains the corresponding realization from the collision run. The source draws are independent of `dT`, so reusing a seed also pairs the source realization across the two time steps. Preserve this code path and verify the multipliers in each manifest.
 
 The existing launcher supports these modes on Grid B main runs:
 
@@ -56,13 +56,28 @@ COLLISION_SEED=1 COLLISION_DT=0.08 bash run-collision-spacing-4-to-1.sh B main r
 
 Repeat for seeds 1 through 8, then repeat the same triples with `COLLISION_DT=0.008`. Run sequentially at eight threads to stay within the measured memory footprint. Keep every run in its own fresh directory and retain its command, revision and source hashes, seed, multiplier pair, actual endpoint/step count, elapsed time and peak RSS in `MANIFEST.txt`.
 
+### Unattended continuation for seeds 2–8
+
+The ensemble queue requires the archived seed-1 executable, its build record, and all six seed-1 run directories. It runs pending coarse triples followed by fine triples and checks each run's manifest, profile cadence, finite output, and diagnostic histories before advancing. It appends progress and Gauss-law peaks to `runs/grid-b-ensemble.log`. Restarting revalidates completed runs and creates a fresh directory for each pending run. [Ensemble queue](run-grid-b-ensemble.py)
+
+To use the queue from Windows PowerShell, set the path to your `Workdirectory` as it appears inside WSL. Preview the queue before launching the background process.
+
+```powershell
+$gridBPath = '/mnt/c/path/to/Paskahila/Workdirectory'
+wsl.exe --cd $gridBPath --exec python3 -B run-grid-b-ensemble.py --dry-run
+Start-Process -FilePath wsl.exe -WindowStyle Hidden `
+  -ArgumentList '--cd', $gridBPath, '--exec', 'python3', '-u', 'run-grid-b-ensemble.py', '--run'
+```
+
+The commands use the default WSL distribution. Keep Windows awake and Ubuntu running for about 46 hours. The queue runs independently of the PowerShell and Codex sessions. Run the same start command to resume after an interruption. The campaign log lists each validated run directory and the final completion marker.
+
 ## Output schedule and time alignment
 
 Save the EMT profile every `0.8` simulation-time units: every 10 steps at `dT=0.08`, and every 100 steps at `dT=0.008`. The initial profile at `t=0` is retained. Both resolutions should therefore provide the same nominal profile times from `t=0` through `t=88`, 111 profiles per run or 5,328 profiles in the campaign. The existing 20-step bulk-energy and Gauss-law outputs keep their step-based schedule; they are diagnostics, not the EMT analysis series.
 
 The evolution loop can take one extra final step because of floating-point accumulation. Record the actual marker from each log; the primary profile comparison uses the common saved frames through nominal `t=88`, not an assumption about the final loop time. After an evolution step, the EMT profile's physical measurement time is its reported time plus `dT/2`; the initial frame mixes times and is treated separately. The seed-1 comparison used 109 common physical times from `1.604` through `88.004`, linearly interpolating coarse profiles between 0.8-unit cadence brackets. Retain raw reported timestamps alongside any corrected physical-time estimate.
 
-The seed-1 block with the planned 111-profile cadence took 38m23s–38m36s per run at `dT=0.08` and 1h32m31s–1h33m10s per run at `dT=0.008`, with eight threads and about 2.08 GiB peak RSS. Extrapolating the observed averages gives roughly 52.5 hours for all 48 runs, or 46 hours for the 42 remaining. Later seeds may differ, so this is a planning estimate. At 145,595 bytes for the initial Grid B profile, EMT text output alone is on the order of 0.75 GB for the full matrix.
+The seed-1 block with the planned 111-profile cadence took about 38 minutes per run at `dT=0.08` and 93 minutes per run at `dT=0.008`, with eight threads and about 1.98 GiB peak RSS. The observed averages gave a planning estimate of 46 hours for the 42-run continuation. The queue completed that block in 43 h 24 min. The [ensemble handoff](GRID_B_ENSEMBLE_HANDOFF.md#run-audit) records the actual runtimes and memory by run type.
 
 ## Analysis
 
@@ -74,9 +89,6 @@ Review the initial profiles and Gauss-law residuals for each run, check all outp
 
 ## Execution gates and deliverables
 
-1. Rebuild the Grid B collision-study executable from the confirmed corrected source, then inspect its build record and source hashes.
-2. **Complete for seed 1:** the `dT=0.08` and `dT=0.008` collision/left-only/right-only triples passed the cadence, multiplier, finite-output and completion checks. Their measured runtimes and timestep comparison are in [the seed-1 handoff](GRID_B_SEED1_HANDOFF.md).
-3. Complete and review each matched three-run group before proceeding to the next seed/time step. Resume only from manifest-confirmed completed runs; never reuse a run directory.
-4. Deliver a 48-run manifest index, profile-time audit, paired raw and aligned CSVs, ensemble plots and uncertainty summaries, plus an updated handoff document.
-
-The source-normalization and output-cadence gates passed for the seed-1 pilot block. The other seven seeds have not been run; continue with them only as a separately scheduled campaign.
+1. The seed-1 build passed the corrected source and cadence gates. The queue verified and reused the same executable for seeds 2–8.
+2. All 16 matched triples passed the multiplier, cadence, finite-output, and completion checks.
+3. The [ensemble handoff](GRID_B_ENSEMBLE_HANDOFF.md) links the 48-run manifest index, profile-time audit, paired raw and aligned CSVs, ensemble plots, and uncertainty summaries.
